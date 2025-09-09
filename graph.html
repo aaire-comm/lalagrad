@@ -1,0 +1,33 @@
+
+    <html>
+    <head>
+      <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    </head>
+    <body>
+      <div id="mynetwork" style="height: 600px;"></div>
+      <div id="detail" style="position: fixed; width: 400px; height: 400px; top:0; left: 0; border: black; backgroung-color: 'red'"/>
+      <script>
+        var selectedNode;
+        var nodes = new vis.DataSet([{'id': 129686500746464, 'label': 'Matrice(shape=<(1, 1)> grad_fn=<MEAN>)', 'shape': 'box', 'color': '#aa5555'}, {'id': 129686500746416, 'label': 'MEAN', 'color': 'green', 'shape': 'circle'}, {'id': 129686500746368, 'label': 'Matrice(shape=<(1, 1)> grad_fn=<ElPow>)', 'shape': 'box'}, {'id': 129686500746080, 'label': 'ElPow', 'color': 'green', 'shape': 'circle'}, {'id': 129686500746224, 'label': 'Matrice(shape=<(1, 1)> grad_fn=<Sub>)', 'shape': 'box'}, {'id': 129686500743776, 'label': 'Sub', 'color': 'green', 'shape': 'circle'}, {'id': 129686500746176, 'label': 'Matrice(shape=<(1, 1)> grad_fn=<MMul>)', 'shape': 'box'}, {'id': 129686500743920, 'label': 'MMul', 'color': 'green', 'shape': 'circle'}, {'id': 129686500746272, 'label': 'Matrice(shape=<(1, 1)> grad_fn=<MMul>)', 'shape': 'box'}, {'id': 129686524446288, 'label': 'MMul', 'color': 'green', 'shape': 'circle'}, {'id': 129686524446240, 'label': 'Matrice(shape=<(1, 1)> grad_fn=<MMul>)', 'shape': 'box'}, {'id': 129686524446096, 'label': 'MMul', 'color': 'green', 'shape': 'circle'}, {'id': 129686501696304, 'label': 'Matrice(shape=<(1, 2)> grad_fn=<MMul>)', 'shape': 'box'}, {'id': 129686524445952, 'label': 'MMul', 'color': 'green', 'shape': 'circle'}, {'id': 129686524445664, 'label': 'Input1', 'shape': 'box', 'color': 'yellow'}, {'id': 129686524378288, 'label': 'Layer1', 'shape': 'box'}, {'id': 129686499777072, 'label': 'Layer2', 'shape': 'box'}, {'id': 129686499780048, 'label': 'Layer3', 'shape': 'box'}, {'id': 129686524447056, 'label': 'Layer4', 'shape': 'box'}, {'id': 129686524445616, 'label': 'Target1', 'shape': 'box', 'color': 'yellow'}, {'id': 11760712, 'label': '2', 'shape': 'box'}]);
+        var edges = new vis.DataSet([{'from': 129686500746464, 'to': 129686500746416}, {'from': 129686500746368, 'to': 129686500746416}, {'from': 129686500746368, 'to': 129686500746080}, {'from': 129686500746224, 'to': 129686500746080}, {'from': 129686500746224, 'to': 129686500743776}, {'from': 129686500746176, 'to': 129686500743776}, {'from': 129686500746176, 'to': 129686500743920}, {'from': 129686500746272, 'to': 129686500743920}, {'from': 129686500746272, 'to': 129686524446288}, {'from': 129686524446240, 'to': 129686524446288}, {'from': 129686524446240, 'to': 129686524446096}, {'from': 129686501696304, 'to': 129686524446096}, {'from': 129686501696304, 'to': 129686524445952}, {'from': 129686524445664, 'to': 129686524445952}, {'from': 129686524378288, 'to': 129686524445952}, {'from': 129686499777072, 'to': 129686524446096}, {'from': 129686499780048, 'to': 129686524446288}, {'from': 129686524447056, 'to': 129686500743920}, {'from': 129686524445616, 'to': 129686500743776}, {'from': 11760712, 'to': 129686500746080}, {'from': 10750112, 'to': 129686500746416}]);
+        var container = document.getElementById('mynetwork');
+        var details = document.getElementById('mynetwork');
+        var data = { nodes: nodes, edges: edges };
+        var options = {layout: { hierarchical: { direction: "LR", nodeSpacing: 150, levelSeparation: 200 } }, nodes: { shape: "box" }, edges: { arrows: "to"}, physics: false}
+        var network = new vis.Network(container, data, options);
+
+        network.on("click", function(params) {
+            if (params.nodes.length > 0) {
+                var nodeId = params.nodes[0];
+                var node = nodes.get(nodeId);
+                selectedNode = node
+                h1 = document.createElement('h1')
+                h1.text = node.label
+                details.addChild()
+            }
+        });
+
+      </script>
+    </body>
+    </html>
+    

@@ -9,8 +9,6 @@ from typing import List, Optional
 import math
         
 
-
-
     
 class Function:
     def __init__(self, name, type_, *args):
@@ -20,7 +18,19 @@ class Function:
         
         self.grad = None
 
-    def __call__(self): return Matrice(self.forward(), grad_fn=self, requires_grad=any(operand.requires_grad for operand in self.operands))
+    @classmethod
+    def elem_wise_validate(cls, fn):
+        shape = fn.operands[0].shape
+        return all(shape == op.shape for op in fn.operands), f"Incompatable shape for function {fn.name}"
+
+
+    def validate(self):
+        return True, ""
+
+    def __call__(self): 
+        assertion, msg = self.validate()
+        assert assertion, msg
+        return Matrice(self.forward(), grad_fn=self, requires_grad=any(operand.requires_grad if isinstance(operand, Matrice) else False for operand in self.operands))
     
     def backward(self, upstream_m):
         for operand in self.operands:
@@ -34,7 +44,7 @@ class Function:
                 else:
                     grad =   Matrice(self.gradient(operand, upstream_m))
 
-                if upstream_m is not None and self.op_type != "View":
+                if upstream_m is not None and self.op_type != "View" and self.name != "MMul":
                     grad *= upstream_m
 
                 if operand.grad is None:
@@ -49,12 +59,12 @@ class Function:
 
 
 
+
 class Mean(Function):
     def __init__(self, *args): super().__init__("MEAN", "SReduce", *args)
 
     def forward(self):
         size = self.operands[0].numel()
-        print("mean operands:", self.operands)
         return [[sum(sum(row) for row in self.operands[0].data)/size]]
     
     def gradient(self):
@@ -78,6 +88,10 @@ class Add(Function):
     def __init__(self, *args):
         super().__init__("Add", "Binary", *args)
     
+    def validate(self):
+        a, b = self.operands
+        return a.shape == b.shape, f"Matrices for different shape for {self.name}"
+    
     def forward(self):
         return [[e1 + e2 for e1, e2 in zip(row1, row2) ] for row1, row2 in zip(*(operand.data for operand in self.operands)) ] 
     
@@ -90,6 +104,9 @@ class Sub(Function):
     def __init__(self, *args):
         super().__init__("Sub", "Binary", *args)
     
+    def validate(self): 
+        return Function.elem_wise_validate(self)
+        
     def forward(self):
         return [[e1 - e2 for e1, e2 in zip(row1, row2) ] for row1, row2 in zip(*(operand.data for operand in self.operands)) ] 
     
@@ -112,7 +129,6 @@ class Sum(Function):
 
     def forward(self, dim=None): 
         m, dim = self.operands
-        print(m.data)
         if dim is None:
             return [[sum([sum(row) for row in m.data])]]
         elif dim == 0:
@@ -158,7 +174,7 @@ class ScalarMul(Function):
 
         
 class Matmul(Function):
-    _matmul = lambda m1, m2: [[_dot(row, col) for col in m2] for row in m1 ]
+    _matmul = lambda m1, m2: [[_dot(row, col) for col in _transpose(m2)] for row in m1 ]
     
     def __init__(self, *args):
         super().__init__("MMul", "MBinary", *args)
@@ -168,16 +184,18 @@ class Matmul(Function):
         m2_t = m2.transpose()
         return [[_dot(row, col) for col in m2_t.data] for row in m1.data]
 
+
     def gradient(self, w_r_t, upstream_m): 
         a, b = self.operands
         if w_r_t is a:
             assert upstream_m.shape[1] == b.shape[1]
             B_T = b.transpose().data
-            return Matmul._matmul(upstream_m.data, B_T)
+            grad = Matmul._matmul(upstream_m.data, B_T)
         else:
             assert upstream_m.shape[0] == a.shape[0]
             A_T = a.transpose().data
-            return Matmul._matmul(A_T, upstream_m.data)
+            grad  = Matmul._matmul(A_T, upstream_m.data)
+        return grad
 
 
 class Matrice: 

@@ -1,6 +1,6 @@
-from .lala import  Matrice
+from .matrice import  Matrice
 
-def export_html(root, filename="graph.html"):
+def graph_html(root, filename="graph.html"):
     nodes, edges = [], []
     visited = set()
 
@@ -9,11 +9,11 @@ def export_html(root, filename="graph.html"):
         visited.add(node)
         if isinstance(node, Matrice):
             if is_root:
-                nodes.append({"id": id(node), "label": str(node) if node.label is None else node.label, "shape": "box", "color": "#aa5555"})
-            elif node.requires_grad:
-                nodes.append({"id": id(node), "label": str(node) if node.label is None else node.label, "shape": "box"})
+                nodes.append({"id": id(node), "label": str(node) if node.label is None else node.label + str(node.shape), "shape": "box", "color": "#aa5555"})
+            elif node.requires_grad and node.grad is not None:
+                nodes.append({"id": id(node), "label": str(node) + str(node.grad.shape) if node.label is None else node.label + str(node.shape), "shape": "box"})
             else:
-                nodes.append({"id": id(node), "label": str(node) if node.label is None else node.label, "shape": "box", "color": "yellow"})
+                nodes.append({"id": id(node), "label": str(node) if node.label is None else node.label + str(node.shape), "shape": "box", "color": "yellow"})
             if node.grad_fn is not None:
                 nodes.append({"id": id(node.grad_fn), "label": node.grad_fn.name, "color": "green", "shape": "circle"})
                 edges.append({"from": id(node), "to": id(node.grad_fn)})

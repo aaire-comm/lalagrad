@@ -4,9 +4,10 @@ Function types:
     Binary -> take a Matrice and return a Matrice
     SReduce (Scalar reduce) take a Matrice and return single element Matrice (implicite autograd allowed)
 """
-
+import ctypes
 from typing import List, Optional
 import math
+from .utils import graph_html
         
 
     
@@ -74,7 +75,7 @@ class Mean(Function):
         
 class Transpose(Function):
     def __init__(self, *args): 
-        super().__init__("Transpose", "VIEW", *args)
+        super().__init__("Transpose", "View", *args)
 
     def forward(self): 
         m = self.operands[0]
@@ -170,8 +171,22 @@ class ScalarMul(Function):
         m, p = self.operands
         return [[e * p for e in raw] for raw in m.data]
         
-    def gradient(self, w_r_t): return [[self.operands[1] for _ in raw] for raw in w_r_t.data]
+    def gradient(self): 
+        w_r_t, scalar = self.operands
+        return [[scalar for _ in raw] for raw in w_r_t.data]
 
+class Relu(Function):
+    def __init__(self, *args): super().__init__("Relu", "Unary", *args)
+
+    def forward(self):
+        m = self.operands[0]
+        return [[e if e > 0 else 0 for e in row] for row in m.data]
+    
+    def gradient(self):
+        m = self.operands[0]
+        return [[1 if e > 0 else 0 for e in row] for row in m.data]
+
+    
         
 class Matmul(Function):
     _matmul = lambda m1, m2: [[_dot(row, col) for col in _transpose(m2)] for row in m1 ]
@@ -186,27 +201,34 @@ class Matmul(Function):
 
 
     def gradient(self, w_r_t, upstream_m): 
-        a, b = self.operands
-        if w_r_t is a:
-            assert upstream_m.shape[1] == b.shape[1]
-            B_T = b.transpose().data
-            grad = Matmul._matmul(upstream_m.data, B_T)
+        lhs, rhs = self.operands
+        
+        if w_r_t is lhs:
+            lgrad = Matrice(Matmul._matmul(upstream_m.data, rhs.transpose().data))
+            if len(lhs.shape) < len(lgrad.shape):
+                lgrad = lgrad.sum(tuple([i for i in range(len(lgrad.shape) - len(lhs.shape))]))
+            return lgrad.data
         else:
-            assert upstream_m.shape[0] == a.shape[0]
-            A_T = a.transpose().data
-            grad  = Matmul._matmul(A_T, upstream_m.data)
-        return grad
+            rgrad = Matrice(Matmul._matmul(lhs.transpose().data, upstream_m.data))
+            if len(rhs.shape) < len(rgrad.shape):
+                rgrad = rgrad.sum(tuple([i for i in range(len(rgrad.shape) - len(rhs.shape))]))
+            
+            return rgrad.data
 
 
 class Matrice: 
-    def __init__(self, data: List[int], grad_fn: Optional[Function]=None, label=None,  requires_grad=False):
+    def __init__(self, data: List[int], shape=None, grad_fn: Optional[Function]=None, label=None,  requires_grad=False):
         self.data, self.grad_fn, self.requires_grad = data, grad_fn, requires_grad
-        self.shape = (len(data), len(data[0]))
+        self.shape = (len(data), len(data[0])) if shape is None else shape
         self.grad = None
         self.label = label
     
     def __repr__(self):
         return f"Matrice(shape=<{self.shape}> grad_fn=<{None if self.grad_fn is None else self.grad_fn.name}>)"
+    
+    def visualize(self, file_name="graph.html"):
+        graph_html(self, Matrice, filename=file_name)
+        print(f"Computaion Graph exported as {file_name}")
 
     def __matmul__(self, other):
         assert self.shape[1] == other.shape[0], f"matmul of invalid shapes {self.shape, other.shape}"

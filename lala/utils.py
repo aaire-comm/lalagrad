@@ -1,13 +1,12 @@
-from .matrice import  Matrice
 
-def graph_html(root, filename="graph.html"):
+def graph_html(root, cls, filename="graph.html"):
     nodes, edges = [], []
     visited = set()
 
     def visit(node, is_root=False):
         if node in visited or node is None: return
         visited.add(node)
-        if isinstance(node, Matrice):
+        if isinstance(node, cls):
             if is_root:
                 nodes.append({"id": id(node), "label": str(node) if node.label is None else node.label + str(node.shape), "shape": "box", "color": "#aa5555"})
             elif node.requires_grad and node.grad is not None:

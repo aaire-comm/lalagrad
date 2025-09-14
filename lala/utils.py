@@ -1,3 +1,15 @@
+from math import prod
+
+def view(shape, list, offset=0):
+    return [list[i] if len(shape)==1 else view(shape[1:], list) for i in range(shape[0])] 
+
+def _to_list(ptr, shape):
+    return list(ptr[i] for i in range(prod(shape)))
+
+def _get_list_shape(l):
+    return _get_list_shape(l[0]) + (len(l),)if isinstance(l[0], list) else (len(l),)
+
+def get_list_shape(l): return tuple(reversed(_get_list_shape(l)))
 
 def graph_html(root, cls, filename="graph.html"):
     nodes, edges = [], []

@@ -1,3 +1,4 @@
+
 """
 Function types:
     Unary -> take a Matrice return Matrice of the same shape
@@ -5,10 +6,14 @@ Function types:
     SReduce (Scalar reduce) take a Matrice and return single element Matrice (implicite autograd allowed)
 """
 import ctypes
-from typing import List, Optional
+from typing import List, Optional, Union, Tuple, Any
 import math
-from .utils import graph_html
-        
+from .utils import graph_html, view, get_list_shape, _to_list
+from .c.lib_loader import lib, libc
+import numpy as np
+import time
+
+
 
     
 class Function:
@@ -16,7 +21,6 @@ class Function:
         self.name = name
         self.op_type = type_
         self.operands = args
-        
         self.grad = None
 
     @classmethod
@@ -31,7 +35,7 @@ class Function:
     def __call__(self): 
         assertion, msg = self.validate()
         assert assertion, msg
-        return Matrice(self.forward(), grad_fn=self, requires_grad=any(operand.requires_grad if isinstance(operand, Matrice) else False for operand in self.operands))
+        return Matrice(data=self.forward(), grad_fn=self, requires_grad=any(operand.requires_grad if isinstance(operand, Matrice) else False for operand in self.operands))
     
     def backward(self, upstream_m):
         for operand in self.operands:
@@ -180,7 +184,9 @@ class Relu(Function):
 
     def forward(self):
         m = self.operands[0]
-        return [[e if e > 0 else 0 for e in row] for row in m.data]
+        res = Matrice.empty(*m.shape, dtype=int32)
+        lib.relu_int(m._data.ptr, res._data.ptr, res._data.size)
+        return res
     
     def gradient(self):
         m = self.operands[0]
@@ -196,8 +202,9 @@ class Matmul(Function):
         
     def forward(self):
         m1, m2 = self.operands
-        m2_t = m2.transpose()
-        return [[_dot(row, col) for col in m2_t.data] for row in m1.data]
+        res = Matrice(m1.shape[0], m2.shape[1], dtype=int32)
+        lib.matmul_int(m1.shape[0], m1.shape[1], m2.shape[1], m1._data.ptr, m2._data.ptr, res._data.ptr)
+        return res
 
 
     def gradient(self, w_r_t, upstream_m): 
@@ -205,26 +212,144 @@ class Matmul(Function):
         
         if w_r_t is lhs:
             lgrad = Matrice(Matmul._matmul(upstream_m.data, rhs.transpose().data))
-            if len(lhs.shape) < len(lgrad.shape):
-                lgrad = lgrad.sum(tuple([i for i in range(len(lgrad.shape) - len(lhs.shape))]))
             return lgrad.data
         else:
             rgrad = Matrice(Matmul._matmul(lhs.transpose().data, upstream_m.data))
-            if len(rhs.shape) < len(rgrad.shape):
-                rgrad = rgrad.sum(tuple([i for i in range(len(rgrad.shape) - len(rhs.shape))]))
-            
             return rgrad.data
+        
+class ViewOp(Function):
+    def __init__(self, name, type_, *args):
+        super().__init__("View", "View", *args)
+    
+    def forward(self):
+        return 
+
+    def gradient(self):
+        return 
+
+
+class Dtype:
+    def __init__(self, name: str, bytes: int, base: Union[ctypes.c_int, ctypes.c_float]):
+        self.name = name
+        self.bytes = bytes
+        self.base = base
+        
+
+int32  = Dtype("int32", 4, ctypes.c_int)
+float32  = Dtype("float32", 4, ctypes.c_float)
+
+
+class Blob:
+    def __init__(self, ptr: Optional[ctypes.POINTER]=None, dtype: Dtype=float32, size: Optional[int]=None, zero_init=True):
+        base = dtype.base
+        self.size = size
+        if ptr is None:
+            if zero_init:
+                ptr = (base * size)()
+            else:
+                ptr = libc.malloc(dtype.bytes*size)
+
+        self.ptr = ctypes.cast(ptr, ctypes.POINTER(base))        
+
+
+    
+    @classmethod
+    def from_list(cls, _from: List[List[Any]], dtype=float32):
+        np_dtype, base = (np.float32, ctypes.c_float) if dtype is float32 else (np.int32, ctypes.c_int)
+        arr = np.array(_from, dtype=np_dtype, order="C")
+        ptr = arr.ctypes.data_as(ctypes.POINTER(base))
+        len_ = len(arr)
+        del arr
+        return cls(ptr, size=len_, dtype=dtype)
+    
+    def __getitem__(self, index):
+        return self.ptr[index]
+    
+    def fill(self, value):
+        lib.fill_int(self.ptr, value, self.size)
+        return self
+    
+    def tolist(self, shape):
+        list_ = _to_list(self.ptr, shape)
+        return view(shape, list_)
+
+class View(tuple):
+    def __new__(cls, iterable):
+        return super().__new__(cls, iterable)
+    
 
 
 class Matrice: 
-    def __init__(self, data: List[int], shape=None, grad_fn: Optional[Function]=None, label=None,  requires_grad=False):
-        self.data, self.grad_fn, self.requires_grad = data, grad_fn, requires_grad
-        self.shape = (len(data), len(data[0])) if shape is None else shape
-        self.grad = None
+    def __init__(self, *args, data: Optional[Union[List[List[int]] | "Matrice"]]=None, dtype=float32, grad_fn: Optional[Function]=None, label=None,  requires_grad=False):
+        # assert len(args) == 2, "Only Matrices (Tensors of dim=2 are supported)"
+        assert (not requires_grad) or (dtype is float32), "requires_grad allowed for dtype=float32"
+        if data is not None:
+            if isinstance(data, list):
+                assert all(isinstance(d, list) for d in data), "invalid data"
+                self._data = Blob.from_list(data, dtype=dtype)
+                self.shape = View(get_list_shape(data))
+            elif isinstance(data, Matrice):
+                self._data = data._data
+                self.shape = data.shape if len(args)==0 else View(args)
+            elif isinstance(data, Blob):
+                self._data = data
+                assert len(args) != 0, "shape is required when passing a Blob"
+                self.shape = View(args)
+
+            else: 
+                raise TypeError("data must be a 2d list or a matrice instance")
+        else: 
+            assert len(args) > 0, "shape or data is required"
+            self._data = Blob(size=math.prod(args), dtype=dtype)
+            self.shape = View(args)
+            
         self.label = label
+        
+        self.data = data, 
+
+        self.dtype = dtype
+        self.size = self._data.size
+
+        self.requires_grad = requires_grad
+        self.grad_fn = grad_fn
+        self.grad = None
+
+    @classmethod
+    def empty(cls, *args, dtype=float32, requires_grad=False):
+        blob = Blob(dtype=dtype, size=math.prod(args), zero_init=False)
+        return cls(*args, data=blob, dtype=dtype, requires_grad=requires_grad)
     
+    @classmethod
+    def fill(cls, *args, value=0, dtype=float32, requires_grad=False):
+        blob = Blob(dtype=dtype, size=math.prod(args)).fill(value)
+        return cls(*args, data=blob, dtype=dtype, requires_grad=requires_grad)
+    
+    @classmethod
+    def rand(cls, *args, value=0, dtype=float32, requires_grad=False):
+        blob = Blob(dtype=dtype, size=math.prod(args))
+        if dtype is float32:
+            lib.rand_(blob.ptr, int(time.time()), blob.size)
+        else:
+            lib.rand_int(blob.ptr, int(time.time()), blob.size)
+        return cls(*args, data=blob, dtype=dtype, requires_grad=requires_grad)
+
+
+
     def __repr__(self):
         return f"Matrice(shape=<{self.shape}> grad_fn=<{None if self.grad_fn is None else self.grad_fn.name}>)"
+    
+    def view(self, *args):
+        assert math.prod(args) == math.prod(self.shape), f"can't view {self.shape} as {args}"
+        new = Matrice(*args, data=self._data, dtype=self.dtype, requires_grad=self.requires_grad)
+        return new
+
+    def __getitem__(self, slices):
+        assert len(slices) <= len(self.shape)
+        
+        for dim in range(len(self.shape)):
+            if len(slices) > 1:
+                return self[slices[dim:]]
+            return self._data[slices[0:2]]
     
     def visualize(self, file_name="graph.html"):
         graph_html(self, Matrice, filename=file_name)
@@ -232,13 +357,17 @@ class Matrice:
 
     def __matmul__(self, other):
         assert self.shape[1] == other.shape[0], f"matmul of invalid shapes {self.shape, other.shape}"
-        grad_fn = Matmul(self, other)
-        return grad_fn()
+        return Matmul(self, other)()
 
     def dot(self, other): return (self * other).sum(1)
 
     def __add__(self, other): return Add(self, other)()
     def __sub__(self, other): return Sub(self, other)()
+
+    def tolist(self): 
+        return self._data.tolist(self.shape)
+        
+
     def __mul__(self, other): return Mul(self, other)()
         
 
@@ -262,7 +391,8 @@ class Matrice:
         self.grad_fn.backward(upstream_m)
 
 
-def _transpose(data): return [[row[i] for row in data] for i in range(len(data[0]))]
+def _transpose(data):
+    return [[row[i] for row in data] for i in range(len(data[0]))]
 
 def _dot(v1, v2): return sum([a * b for a, b in zip(v1, v2)])
 

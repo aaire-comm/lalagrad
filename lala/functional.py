@@ -1,5 +1,4 @@
 from .matrice import Matrice, Relu
+from .c.lib_loader import lib
 
-def relu(m: Matrice):
-    relu = Relu(m)
-    return Matrice(relu.forward(), grad_fn=relu, requires_grad=m.requires_grad)
+def relu(m: Matrice): return Relu(m)()

@@ -1,20 +1,12 @@
-from lala.matrice import Matrice
-from lala.functional import relu
-from lala.matrice import float32, int32
+from lala import float32, int32
+from lala import Tensor
 
 
-
-a = Matrice.fill(2000, 300, value=-1, dtype=int32)
-b = Matrice.rand(300, 400, dtype=float32)
-
-# c = a @ b
-# d = relu(c)
-
-print(a.shape, b.shape)
-print(list(a._data.ptr[i] for i in range(10)))
-print(list(b._data.ptr[i] for i in range(10)))
-# print(list(c._data.ptr[i] for i in range(10)))
-# print(list(d._data.ptr[i] for i in range(10)))
+a = Tensor.fill(4, 3, 2, 1, value=-1, dtype=int32)
 
 
+b = a.view(2, 3, 1, 4)
 
+import torch
+
+print(torch.tensor(b.tolist()).shape)

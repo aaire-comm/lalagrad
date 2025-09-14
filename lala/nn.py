@@ -1,4 +1,4 @@
-from .matrice import Matrice
+from .tensor import Matrice
 from typing import Tuple
 import numpy as np
 

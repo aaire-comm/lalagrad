@@ -3,8 +3,10 @@ from math import prod
 def view(shape, list, offset=0):
     return [list[i] if len(shape)==1 else view(shape[1:], list) for i in range(shape[0])] 
 
-def _to_list(ptr, shape):
-    return list(ptr[i] for i in range(prod(shape)))
+
+def _to_list(arr, shape, off=0): 
+    return arr[off: off+shape[0]] if len(shape) == 1 else [_to_list(arr, shape[1: ], i*prod(shape[1:])) for i in range(shape[0])]
+
 
 def _get_list_shape(l):
     return _get_list_shape(l[0]) + (len(l),)if isinstance(l[0], list) else (len(l),)

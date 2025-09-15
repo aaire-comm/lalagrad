@@ -1,38 +1,39 @@
-from typing import Optional, List, Any
-from .dtype import Dtype, float32
-from .c.lib_loader import lib, libc
-from .utils import _to_list
+from typing import Optional
+from .utils import _to_python_list
 import ctypes
+from lala.dtype import Dtype, float32, char
+from lala._C import ffi, lib as libc
+
 
 class Blob:
-    def __init__(self, ptr: Optional[ctypes.POINTER]=None, dtype: Dtype=float32, nbytes: Optional[int]=None, zero_init=True):
-        base = dtype.base
+    def __init__(self, ptr: Optional[ctypes.POINTER]=None, nbytes: Optional[int]=None, fill=None, zero_init=True):
+        assert nbytes is not None or ptr is not None, "Blob requires nbytes or ptr"
         self.nbytes = nbytes
-        if ptr is None:
-            if zero_init:
-                ptr = (base * nbytes)()
-            else:
-                ptr = libc.malloc(dtype.bytes*nbytes)
+        self.zero_init = zero_init
 
-        self.ptr = ctypes.cast(ptr, ctypes.POINTER(base))        
+        self.__ptr =  ffi.cast("int*", ptr if ptr is not None else libc.malloc(nbytes))
+
+        if zero_init:
+            libc.memset(self.__ptr, 0, self.nbytes)
+        elif fill is not None:
+            libc.memset(self.__ptr, fill, self.nbytes)
 
     
-    @classmethod
-    def from_list(cls, _from: List[List[Any]], dtype=float32):
-        # np_dtype, base = (np.float32, ctypes.c_float) if dtype is float32 else (np.int32, ctypes.c_int)
-        # arr = np.array(_from, dtype=np_dtype, order="C")
-        # ptr = arr.ctypes.data_as(ctypes.POINTER(base))
-        # len_ = len(arr)
-        # del arr
-        return
-        # return cls(ptr, nbytes=len_, dtype=dtype)
+    def _get_pointer(self, dtype: Optional[Dtype]=None):
+        if dtype is None:
+            return self.__ptr
+        return ffi.cast(dtype.ptr_t, self.__ptr)
     
-    def __getitem__(self, index):
-        return self.ptr[index]
+    def _release(self):
+        libc.free(self._get_pointer(float32))
+        return True
     
-    def fill(self, value):
-        lib.fill_int(self.ptr, value, self.nbytes)
-        return self
-    
-    def tolist(self, shape):
-        return _to_list(self.ptr, shape)
+    def _to_python_list(self, shape):
+        return _to_python_list(self._get_pointer(float32), shape)
+
+    def __getitem__(self, key):
+        return self._get_pointer(char)[key]
+
+    def _clone(self, other):
+        libc.memcpy(self._get_pointer(float32), other._get_pointer(float32), self.nbytes)
+        return True

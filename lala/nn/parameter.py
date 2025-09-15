@@ -1,10 +1,10 @@
-from .tensor import Matrice
+from .tensor import Tensor
 from typing import Tuple
-import numpy as np
+import numpy as np # type: ignore
 
-class Parameter(Matrice):
+class Parameter(Tensor):
     def __init__(self, shape: Tuple[int], label=None, grad_fn=None):
-        self.w = Matrice(np.random.rand(*shape).tolist(), label=label, requires_grad=True)
+        self.w = Tensor(np.random.rand(*shape).tolist(), label=label, requires_grad=True)
         self.label = label
 
     

@@ -1,16 +1,6 @@
-from .c.lib_loader import lib, libc
 from .utils import *
-from .utils import _to_list
 from .dtype import int32
-from .c.lib_loader import lib
-from typing import List, Any, Union, Tuple, Optional, TYPE_CHECKING
-import ctypes
-
-if TYPE_CHECKING:
-    from typing import type_check_only
-
-    @type_check_only    
-    class Matrice: pass
+from .blob import Blob
 
 def _transpose(data):
     return [[row[i] for row in data] for i in range(len(data[0]))]
@@ -18,17 +8,18 @@ def _transpose(data):
 def _dot(v1, v2): return sum([a * b for a, b in zip(v1, v2)])
 
 
-class Function:
-    def __init__(self, name, type_, *args):
+class Operation:
+    def __init__(self, name, type_, op_lib, *args):
         self.name = name
         self.op_type = type_
         self.operands = args
         self.grad = None
+        self.op_lib = op_lib
 
     @classmethod
     def elem_wise_validate(cls, fn):
         shape = fn.operands[0].shape
-        return all(shape == op.shape for op in fn.operands), f"Incompatable shape for function {fn.name}"
+        return all(shape == op.shape for op in fn.operands), f"Incompatable shape for Operation {fn.name}"
 
 
     def validate(self):
@@ -37,19 +28,20 @@ class Function:
     def __call__(self): 
         assertion, msg = self.validate()
         assert assertion, msg
-        return Matrice(data=self.forward(), grad_fn=self, requires_grad=any(operand.requires_grad if isinstance(operand, Matrice) else False for operand in self.operands))
+        dtype = max(operand.dtype for operand in self.operands)
+        return Blob(data=self.forward(), grad_fn=self, requires_grad=any(operand.requires_grad if isinstance(operand, Blob) else False for operand in self.operands))
     
     def backward(self, upstream_m):
         for operand in self.operands:
-            if isinstance(operand, Matrice) and operand.requires_grad:
+            if isinstance(operand, Blob) and operand.requires_grad:
                 if self.op_type == "Binary":
-                    grad =   Matrice(self.gradient(operand))
+                    grad =   self.gradient(operand)
                 elif self.op_type == "View":
-                    grad =   Matrice(self.gradient(upstream_m))
+                    grad =   self.gradient(upstream_m)
                 elif self.op_type == "Unary" or self.op_type == "SReduce":
-                    grad =   Matrice(self.gradient())
+                    grad =   self.gradient()
                 else:
-                    grad =   Matrice(self.gradient(operand, upstream_m))
+                    grad =   self.gradient(operand, upstream_m)
 
                 if upstream_m is not None and self.op_type != "View" and self.name != "MMul":
                     grad *= upstream_m
@@ -65,7 +57,7 @@ class Function:
                 operand.backward(operand.grad)
 
 
-class Mean(Function):
+class Mean(Operation):
     def __init__(self, *args): super().__init__("MEAN", "SReduce", *args)
 
     def forward(self):
@@ -77,7 +69,7 @@ class Mean(Function):
         return [[1/m.numel() for _ in row] for row in m.data]
         
         
-class Transpose(Function):
+class Transpose(Operation):
     def __init__(self, *args): 
         super().__init__("Transpose", "View", *args)
 
@@ -89,15 +81,16 @@ class Transpose(Function):
         return _transpose(upstream_m.data)
         
     
-class Add(Function):
+class Add(Operation):
     def __init__(self, *args):
         super().__init__("Add", "Binary", *args)
     
     def validate(self):
         a, b = self.operands
-        return a.shape == b.shape, f"Matrices for different shape for {self.name}"
+        return a.shape == b.shape, f"Blobs for different shape for {self.name}"
     
     def forward(self):
+        rhs = self.operands[0]
         return [[e1 + e2 for e1, e2 in zip(row1, row2) ] for row1, row2 in zip(*(operand.data for operand in self.operands)) ] 
     
 
@@ -105,12 +98,12 @@ class Add(Function):
         assert w_r_t in self.operands, "w_r_t is not an operand of this grad_fn"
         return  [[1 for _ in row] for row in w_r_t.data]
     
-class Sub(Function):
+class Sub(Operation):
     def __init__(self, *args):
         super().__init__("Sub", "Binary", *args)
     
     def validate(self): 
-        return Function.elem_wise_validate(self)
+        return Operation.elem_wise_validate(self)
         
     def forward(self):
         return [[e1 - e2 for e1, e2 in zip(row1, row2) ] for row1, row2 in zip(*(operand.data for operand in self.operands)) ] 
@@ -126,7 +119,7 @@ class Sub(Function):
             
     
 
-class Sum(Function):
+class Sum(Operation):
     def __init__(self, *args): 
         super().__init__("Sum", "SReduce" if args[1] is None else "Unary", *args)
         
@@ -148,14 +141,14 @@ class Sum(Function):
 
         
 
-class Mul(Function):
+class Mul(Operation):
     def __init__(self, *args): super().__init__("ElMul", "Binary", *args)
 
     def forward(self): return [[e1 * e2 for e1, e2 in zip(row1, row2) ] for row1, row2 in zip(*(operand.data for operand in self.operands)) ]
     def gradient(self, w_r_t): return self.operands[0].data if w_r_t is self.operands[1] else self.operands[0].data
 
 
-class ScalarPower(Function):
+class ScalarPower(Operation):
     def __init__(self, *args): super().__init__("ElPow", "Unary", *args)
 
     def forward(self): 
@@ -168,7 +161,7 @@ class ScalarPower(Function):
 
     
 
-class ScalarMul(Function):
+class ScalarMul(Operation):
     def __init__(self, *args): super().__init__("SMul", "Unary", *args)
 
     def forward(self): 
@@ -179,12 +172,12 @@ class ScalarMul(Function):
         w_r_t, scalar = self.operands
         return [[scalar for _ in raw] for raw in w_r_t.data]
 
-class Relu(Function):
+class Relu(Operation):
     def __init__(self, *args): super().__init__("Relu", "Unary", *args)
 
     def forward(self):
         m = self.operands[0]
-        res = Matrice.empty(*m.shape, dtype=int32)
+        res = Blob.empty(*m.shape, dtype=int32)
         lib.relu_int(m._data.ptr, res._data.ptr, res._data.size)
         return res
     
@@ -194,7 +187,7 @@ class Relu(Function):
 
     
         
-class Matmul(Function):
+class Matmul(Operation):
     _matmul = lambda m1, m2: [[_dot(row, col) for col in _transpose(m2)] for row in m1 ]
     
     def __init__(self, *args):
@@ -202,8 +195,9 @@ class Matmul(Function):
         
     def forward(self):
         m1, m2 = self.operands
-        res = Matrice(m1.shape[0], m2.shape[1], dtype=int32)
-        lib.matmul_int(m1.shape[0], m1.shape[1], m2.shape[1], m1._data.ptr, m2._data.ptr, res._data.ptr)
+        numel = prod((m1.shape[0], m2.shape[1]))
+        res = Blob(numel=numel, dtype=int32)
+        lib.matmul_int(m1.shape[0], m1.shape[1], m2.shape[1], m1._ptr(), m2.ptr(), res._ptr())
         return res
 
 
@@ -211,13 +205,13 @@ class Matmul(Function):
         lhs, rhs = self.operands
         
         if w_r_t is lhs:
-            lgrad = Matrice(Matmul._matmul(upstream_m.data, rhs.transpose().data))
+            lgrad = Blob(Matmul._matmul(upstream_m.data, rhs.transpose().data))
             return lgrad.data
         else:
-            rgrad = Matrice(Matmul._matmul(lhs.transpose().data, upstream_m.data))
+            rgrad = Blob(Matmul._matmul(lhs.transpose().data, upstream_m.data))
             return rgrad.data
         
-class ViewOp(Function):
+class ViewOp(Operation):
     def __init__(self, name, type_, *args):
         super().__init__("View", "View", *args)
     

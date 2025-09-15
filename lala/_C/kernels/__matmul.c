@@ -1,3 +1,5 @@
+
+
 #include <stdio.h>
 
 void matmul_int(int rrows, int rcols, int lcols, int rhs[rrows][rcols], int lhs[rcols][lcols], int res[rrows][lcols]){
@@ -15,9 +17,9 @@ void matmul_int(int rrows, int rcols, int lcols, int rhs[rrows][rcols], int lhs[
             end = rrows;
         }
 
-
         for (int i = start; i < end; ++i) {
             for (int j = 0; j < lcols; ++j) {
+                res[i][j] = 0;
                 for (int k = 0; k < rcols; ++k) {
                     res[i][j] += rhs[i][k] * lhs[k][j];
                 }
@@ -47,6 +49,7 @@ void matmul_float(int rrows, int rcols, int lcols, float rhs[rrows][rcols], floa
 
         for (int i = start; i < end; ++i) {
             for (int j = 0; j < lcols; ++j) {
+                res[i][j] = 0;
                 for (int k = 0; k < rcols; ++k) {
                     res[i][j] += rhs[i][k] * lhs[k][j];
                 }

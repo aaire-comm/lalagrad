@@ -1,4 +1,3 @@
-
 void sub_scalar_int(int* rhs, int scalar, int* res, int size){
     #pragma omp parallel
     {

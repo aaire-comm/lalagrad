@@ -1,0 +1,14 @@
+#include <omp.h>
+#include <stdlib.h>
+#include "../kernels/__relu.c"
+#include "../kernels/__add_scalar.c"
+#include "../kernels/__fill.c"
+#include "../kernels/__mul_scalar.c"
+#include "../kernels/__rand.c"
+#include "../kernels/__div_scalar.c"
+#include "../kernels/__sub.c"
+#include "../kernels/__sub_scalar.c"
+#include "../kernels/__div.c"
+#include "../kernels/__mul.c"
+#include "../kernels/__add.c"
+#include "../kernels/__matmul.c"

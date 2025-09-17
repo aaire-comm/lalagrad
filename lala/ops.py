@@ -11,10 +11,15 @@ def _dot(v1, v2): return sum([a * b for a, b in zip(v1, v2)])
 
 class Operation:
     def __init__(self, name, type_, *args):
+        from .tensor import  Tensor
         self.name = name
         self.op_type = type_
         self.operands = args
-        self.grad = None
+        for operand in args:
+            if isinstance(operand, Tensor):
+                print("set grad_fn")
+                operand.grad_fn = self
+
 
     @classmethod
     def elem_wise_validate(cls, fn):
@@ -30,7 +35,7 @@ class Operation:
         assert operand in self.operands, f"operand not attached to {self}"
         self.operands = (t if t is not operand else Tensor.dummy() for t in self.operands)
         
-        
+    
 
 
     def __call__(self): 
@@ -41,11 +46,11 @@ class Operation:
         dtype = max(operand.dtype if isinstance(operand, Tensor) else Null for operand in self.operands)
         requires_grad = any(operand.requires_grad if isinstance(operand, Tensor) else False for operand in self.operands)
         if self.op_type == "SReduce":
-            return Tensor(data=self.forward(), dtype=dtype, grad_fn=self, requires_grad=requires_grad)
+            return Tensor(data=self.forward(), src=self, dtype=dtype, requires_grad=requires_grad)
         elif self.op_type == "View":
             shape = self.forward()
-            return Tensor(*shape, data=self.operands[0].storage, dtype=dtype, grad_fn=self, requires_grad=requires_grad)
-        return Tensor(*self.operands[0].shape, data=self.forward(), dtype=dtype, grad_fn=self, requires_grad=requires_grad)
+            return Tensor(*shape, data=self.operands[0].storage, src=self, dtype=dtype, requires_grad=requires_grad)
+        return Tensor(*self.operands[0].shape, data=self.forward(), src=self, dtype=dtype, requires_grad=requires_grad)
     
     def backward(self, upstream_m):
         from lala.tensor import Tensor

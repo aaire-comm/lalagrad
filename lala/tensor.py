@@ -19,8 +19,10 @@ from lala.dtype import float32
 def isTensor(obj): return isinstance(obj, Tensor)
 
 class Tensor: 
-    def __init__(self, *args, data: Optional[Union[List[List[int]] | "Tensor" | Blob]]=None, dtype=float32, grad_fn: Optional[Operation]=None, label=None,  requires_grad=False):
+    def __init__(self, *args, data: Optional[Union[List[List[int]] | "Tensor" | Blob]]=None, dtype=float32, grad_fn: Optional[Operation]=None, label=None,  src: Optional[Operation]=None, requires_grad=False):
         assert (not requires_grad) or (dtype is float32), "requires_grad allowed for dtype=float32"
+        assert src is None or isinstance(src, Operation), "A Tensor src can only be an Op or None "
+        self.src = src
         if data is not None:
             if isinstance(data, list):
                 #use numpy to conver the list to a Contiguous memory block and get a void pointer to it
@@ -140,7 +142,7 @@ class Tensor:
             return self._data[slices[0:2]]
     
     def visualize(self, file_name="graph.html"):
-        graph_html(self, Tensor, filename=file_name)
+        graph_html(self, filename=file_name)
         print(f"Computaion Graph exported as {file_name}")
 
     def __matmul__(self, other):
@@ -158,7 +160,7 @@ class Tensor:
     def smul(self, scalar): return ScalarMul(self, scalar)()
 
     def get_item(self):
-        assert len(self.shape) == 1 and self.shape[0] == 1, "get_item only defined for scalar "
+        assert not len(self.shape), "get_item only defined for scalar "
         return self.storage._get_pointer(self.dtype.ptr_t)[0]
 
     def tolist(self): 
@@ -168,11 +170,18 @@ class Tensor:
 
     def numel(self): return self.shape.numel()
 
-    def backward(self, upstream_m=None):
-        assert upstream_m is not None or self.grad_fn.op_type == "SReduce", "implicit backward only defined for single elemnt matrices"
+    def backward(self, upstream_m: Optional["Tensor"]=None):
         assert self.requires_grad, "matrice doesn't requre_grad"
-        if not self.grad_fn:
-            return 
-        self.grad_fn.backward(upstream_m)
+            
+        if self.src:
+            #TODO: Better to check if tensor is Scalar than relay on op_type
+
+            if not upstream_m and self.src.op_type != "SReduce":
+                raise RuntimeError("implicit backward only defined for single elemnt matrices")
+            self.src.backward(upstream_m)
+        else:
+            assert upstream_m, "implicit backward only defined for single elemnt matrices"
+            assert self.shape == upstream_m.shape, "invalid shape upstream tensor"
+            self.grad = upstream_m
 
 

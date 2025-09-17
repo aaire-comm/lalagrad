@@ -8,8 +8,8 @@
       <div id="detail" style="position: fixed; width: 400px; height: 400px; top:0; left: 0; border: black; backgroung-color: 'red'"/>
       <script>
         var selectedNode;
-        var nodes = new vis.DataSet([{'id': 129647393337088, 'label': 'Tensor(shape=<(3, 3)> grad_fn=<Add>)', 'shape': 'box', 'color': '#aa5555'}, {'id': 129647393336656, 'label': 'Add', 'color': 'green', 'shape': 'circle'}, {'id': 129647393336896, 'label': 'Tensor(shape=<(3, 3)> grad_fn=<Add>)', 'shape': 'box', 'color': 'yellow'}, {'id': 129647393336416, 'label': 'Add', 'color': 'green', 'shape': 'circle'}, {'id': 129647393336704, 'label': 'Tensor(shape=<(3, 3)> grad_fn=<Add>)', 'shape': 'box', 'color': 'yellow'}, {'id': 129647393336368, 'label': 'Add', 'color': 'green', 'shape': 'circle'}, {'id': 129647605133584, 'label': 'Tensor(shape=<(3, 3)> grad_fn=<None>)', 'shape': 'box', 'color': 'yellow'}, {'id': 129647393336224, 'label': 'Tensor(shape=<(3, 3)> grad_fn=<None>)', 'shape': 'box', 'color': 'yellow'}]);
-        var edges = new vis.DataSet([{'from': 129647393337088, 'to': 129647393336656}, {'from': 129647393336896, 'to': 129647393336656}, {'from': 129647393336896, 'to': 129647393336416}, {'from': 129647393336704, 'to': 129647393336416}, {'from': 129647393336704, 'to': 129647393336368}, {'from': 129647605133584, 'to': 129647393336368}, {'from': 129647393336224, 'to': 129647393336368}, {'from': 129647605133584, 'to': 129647393336416}, {'from': 129647393336224, 'to': 129647393336656}]);
+        var nodes = new vis.DataSet([{'id': 139381668262400, 'label': 'Tensor(shape=<()> grad_fn=<None>)', 'shape': 'box', 'color': '#aa5555'}, {'id': 139381668262064, 'label': 'MEAN', 'color': 'green', 'shape': 'circle'}, {'id': 139381883008208, 'label': 'Tensor(shape=<(10, 10)> grad_fn=<MEAN>)(10, 10)', 'shape': 'box'}]);
+        var edges = new vis.DataSet([{'from': 139381668262400, 'to': 139381668262064}, {'from': 139381883008208, 'to': 139381668262064}, {'from': 10750112, 'to': 139381668262064}]);
         var container = document.getElementById('mynetwork');
         var details = document.getElementById('mynetwork');
         var data = { nodes: nodes, edges: edges };

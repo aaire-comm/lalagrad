@@ -13,25 +13,26 @@ def _get_list_shape(l):
 
 def get_list_shape(l): return tuple(reversed(_get_list_shape(l)))
 
-def graph_html(root, cls, filename="graph.html"):
+def graph_html(root, filename="graph.html"):
+    from .tensor import Tensor
     nodes, edges = [], []
     visited = set()
 
     def visit(node, is_root=False):
         if node in visited or node is None: return
         visited.add(node)
-        if isinstance(node, cls):
+        if isinstance(node, Tensor):
             if is_root:
                 nodes.append({"id": id(node), "label": str(node) if node.label is None else node.label + str(node.shape), "shape": "box", "color": "#aa5555"})
             elif node.requires_grad and node.grad is not None:
                 nodes.append({"id": id(node), "label": str(node) + str(node.grad.shape) if node.label is None else node.label + str(node.shape), "shape": "box"})
             else:
                 nodes.append({"id": id(node), "label": str(node) if node.label is None else node.label + str(node.shape), "shape": "box", "color": "yellow"})
-            if node.grad_fn is not None:
-                nodes.append({"id": id(node.grad_fn), "label": node.grad_fn.name, "color": "green", "shape": "circle"})
-                edges.append({"from": id(node), "to": id(node.grad_fn)})
-                for parent in node.grad_fn.operands:
-                    edges.append({"from": id(parent), "to": id(node.grad_fn)})
+            if node.src is not None:
+                nodes.append({"id": id(node.src), "label": node.src.name, "color": "green", "shape": "circle"})
+                edges.append({"from": id(node), "to": id(node.src)})
+                for parent in node.src.operands:
+                    edges.append({"from": id(parent), "to": id(node.src)})
                     visit(parent)
         else:
             nodes.append({"id": id(node), "label": str(node), "shape": "box"})

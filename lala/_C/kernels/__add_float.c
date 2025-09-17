@@ -1,4 +1,4 @@
-void add_int(int *rhs, int* lhs, int* res, int size){
+void add_float(float *rhs, float* lhs, float* res, int size){
     #pragma omp parallel
     {
         int nthreads = omp_get_num_threads();

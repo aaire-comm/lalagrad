@@ -1,0 +1,33 @@
+
+    <html>
+    <head>
+      <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    </head>
+    <body>
+      <div id="mynetwork" style="height: 600px;"></div>
+      <div id="detail" style="position: fixed; width: 400px; height: 400px; top:0; left: 0; border: black; backgroung-color: 'red'"/>
+      <script>
+        var selectedNode;
+        var nodes = new vis.DataSet([{'id': 129647393337088, 'label': 'Tensor(shape=<(3, 3)> grad_fn=<Add>)', 'shape': 'box', 'color': '#aa5555'}, {'id': 129647393336656, 'label': 'Add', 'color': 'green', 'shape': 'circle'}, {'id': 129647393336896, 'label': 'Tensor(shape=<(3, 3)> grad_fn=<Add>)', 'shape': 'box', 'color': 'yellow'}, {'id': 129647393336416, 'label': 'Add', 'color': 'green', 'shape': 'circle'}, {'id': 129647393336704, 'label': 'Tensor(shape=<(3, 3)> grad_fn=<Add>)', 'shape': 'box', 'color': 'yellow'}, {'id': 129647393336368, 'label': 'Add', 'color': 'green', 'shape': 'circle'}, {'id': 129647605133584, 'label': 'Tensor(shape=<(3, 3)> grad_fn=<None>)', 'shape': 'box', 'color': 'yellow'}, {'id': 129647393336224, 'label': 'Tensor(shape=<(3, 3)> grad_fn=<None>)', 'shape': 'box', 'color': 'yellow'}]);
+        var edges = new vis.DataSet([{'from': 129647393337088, 'to': 129647393336656}, {'from': 129647393336896, 'to': 129647393336656}, {'from': 129647393336896, 'to': 129647393336416}, {'from': 129647393336704, 'to': 129647393336416}, {'from': 129647393336704, 'to': 129647393336368}, {'from': 129647605133584, 'to': 129647393336368}, {'from': 129647393336224, 'to': 129647393336368}, {'from': 129647605133584, 'to': 129647393336416}, {'from': 129647393336224, 'to': 129647393336656}]);
+        var container = document.getElementById('mynetwork');
+        var details = document.getElementById('mynetwork');
+        var data = { nodes: nodes, edges: edges };
+        var options = {layout: { hierarchical: { direction: "LR", nodeSpacing: 150, levelSeparation: 200 } }, nodes: { shape: "box" }, edges: { arrows: "to"}, physics: false}
+        var network = new vis.Network(container, data, options);
+
+        network.on("click", function(params) {
+            if (params.nodes.length > 0) {
+                var nodeId = params.nodes[0];
+                var node = nodes.get(nodeId);
+                selectedNode = node
+                h1 = document.createElement('h1')
+                h1.text = node.label
+                details.addChild()
+            }
+        });
+
+      </script>
+    </body>
+    </html>
+    

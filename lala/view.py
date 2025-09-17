@@ -8,3 +8,11 @@ class View(tuple):
     
     def numel(self):
         return math.prod(self)
+    
+    def matches_buffer(self):
+        return self._is_contigous
+    
+    def __eq__(self, value):
+        return math.prod(self) == math.prod(value)
+
+

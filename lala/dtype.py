@@ -1,9 +1,15 @@
 import ctypes 
 from typing import Union
 
-
 class Dtype:
-    def __init__(self, name: str, bytes: int, base: Union[ctypes.c_int, ctypes.c_float], python_eq,  strength=0):
+    """
+    name: Name your dtype
+    bytes: How much memory does it take
+    base: the C/C++ equivalent use with cffi interfacing with the _C backend
+    strength: used to determine the result's dtype in case of an op between two Tensors for different dtype
+    """
+
+    def __init__(self, name: str, bytes: int, base: str, python_eq,  strength=0):
         self.name = name
         self.bytes = bytes
         self.base = base
@@ -16,6 +22,11 @@ class Dtype:
 
         
 
-char = Dtype("char", 1, "char", None, 0)
-int32  = Dtype("int32", 4, "int", int, 1)
-float32  = Dtype("float32", 4, "float", float,  2)
+#this only exists for comparison (replaces none dtype objects where dtype is required)
+Null = int8 = Dtype("NULL", 1, "NULL", None, 0) 
+
+
+char = int8 = Dtype("char", 1, "char", None, 1)
+int16  = Dtype("int16", 2, "int16_t", int, 2)
+int32  = Dtype("int32", 4, "int", int, 3)
+float32  = Dtype("float32", 4, "float", float,  4)

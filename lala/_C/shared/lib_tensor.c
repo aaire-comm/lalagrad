@@ -12,3 +12,9 @@
 #include "../kernels/__mul.c"
 #include "../kernels/__add.c"
 #include "../kernels/__matmul.c"
+#include "../kernels/__sum.c"
+#include "../kernels/__mean.c"
+
+#include "../kernels/__sum_float.c"
+#include "../kernels/__fill_float.c"
+#include "../kernels/__add_float.c"

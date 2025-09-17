@@ -12,37 +12,34 @@ from .ops import *
 from .blob import Blob
 from lala.view import View
 import numpy as np
-from typing import Any
 from .dtype import Dtype
-import ctypes
-
+from lala._C import ffi
 from lala.dtype import float32
 
 def isTensor(obj): return isinstance(obj, Tensor)
 
 class Tensor: 
     def __init__(self, *args, data: Optional[Union[List[List[int]] | "Tensor" | Blob]]=None, dtype=float32, grad_fn: Optional[Operation]=None, label=None,  requires_grad=False):
-        _ptr = None
         assert (not requires_grad) or (dtype is float32), "requires_grad allowed for dtype=float32"
         if data is not None:
             if isinstance(data, list):
                 #use numpy to conver the list to a Contiguous memory block and get a void pointer to it
                 #delete the numpy object (we don't need it)
                 #TODO: Implement our own list to buffer of dtyper in C
-                assert all(isinstance(d, list) for d in data), "invalid data"
                 np_dtype = np.float32 if dtype is float32 else np.int32
                 arr = np.array(data, dtype=np_dtype, order="C")
+
+                self.shape = View(arr.shape)
                 nbytes = arr.size * dtype.bytes
-                ptr = arr.ctypes.data_as(ctypes.POINTER(ctypes.c_void))
-                del arr     #delte the numpy object (after taking getting the pointer)
+                ptr = arr.ctypes.data
+
+                del arr #free the memory held by numpy object (NOT the buffer just the PyObject)
                 blob = Blob(ptr=ptr, nbytes=nbytes)
-                self.shape = View(get_list_shape(data))
 
             #you can also just pass a Storage Blob and build a tensor on top
             #it doesn't copy so any change to this the tensor changes the storage 
             #ultimately chaging the data of any other tensor base on that passed blob
             elif isinstance(data, Blob):
-                assert len(args) != 0, "shape is required when passing a Blob"
                 self.shape = View(args)
                 blob = data
             else: 
@@ -50,7 +47,7 @@ class Tensor:
         else: 
             assert len(args) > 0, "shape or data is required"
             self.shape = View(args)
-            blob = Blob(nbytes==math.prod(args)*self.shape.numel())
+            blob = Blob(math.prod(args)*self.shape.numel())
             
         self.label = label
         self.storage = blob
@@ -61,7 +58,7 @@ class Tensor:
 
     @classmethod
     def empty(cls, *args, dtype=float32, requires_grad=False):
-        blob = Blob(nbytes=math.prod(args))
+        blob = Blob(nbytes=math.prod(args)*dtype.bytes)
         return cls(*args, data=blob, dtype=dtype, requires_grad=requires_grad)
     
     @classmethod
@@ -86,28 +83,53 @@ class Tensor:
         return cls(data=b, *t.shape, dtype=dtype, requires_grad=requires_grad)
     
     @classmethod
+    def ones(cls, *args, dtype=float32, requires_grad=False):
+        b = Blob(nbytes=dtype.bytes * math.prod(args), fill=1)
+        return cls(data=b, *args, dtype=dtype, requires_grad=requires_grad)
+    
+    @classmethod
     def ones_like(cls, t: "Tensor", dtype=float32,requires_grad=False):
         blob = Blob(nbytes=t.storage.nbytes, fill=1)
-        return cls(*t.shape, data=blob, dtype=dtype, requires_grad=requires_grad)
+        new = cls(*t.shape, data=blob, dtype=dtype, requires_grad=requires_grad)
+        new.fill(1).detach()
+        return new
     
+    #this is just a dummy place holder to be used where we need to use a tensor
+    @classmethod
+    def dummy(cls, label: str="Dummy"):
+        return cls(0, label=label)
+    
+    def detach(self):
+        assert self.grad_fn is None, "trying to detach an unattached tensor"
+        self.grad_fn.detach(self)
+        self.grad_fn = None
+        
 
     def clone(self):
         clone_ = Tensor.empty(*self.shape, dtype=self.dtype, requires_grad=self.requires_grad)
         self.storage._clone(clone_.storage)
         return clone_
 
-    def _ptr(self): return self.__ptr
-
     def __repr__(self):
         return f"Tensor(shape=<{self.shape}> grad_fn=<{None if self.grad_fn is None else self.grad_fn.name}>)"
     
-    def view(self, *args):
-        assert math.prod(args) == math.prod(self.shape), f"can't view {self.shape} as {args}"
-        new = Tensor(*args, data=self._data, dtype=self.dtype, requires_grad=self.requires_grad)
-        return new
+    def view(self, *args): 
+        print(args)
+        return ViewOp(self, View(args))()
+    
+    def to_(self, dtype: Dtype):
+        assert self.storage.nbytes / dtype.bytes >= self.numel(), "the dtype provided won't feet in the storage"
+        self.dtype = dtype
 
+        
     def to(self, dtype: Dtype):
-        assert self.numel()
+        new  = self.clone()
+        new.to_(dtype)
+        return new
+    
+    def clone(self):
+        new_b = Blob(self.storage.nbytes)
+        return Tensor(*self.shape, data=new_b, dtype=self.dtype, label=str(self.label)+"-copy", requires_grad=self.requires_grad)
 
     def __getitem__(self, slices):
         assert len(slices) <= len(self.shape)
@@ -129,9 +151,20 @@ class Tensor:
 
     def __add__(self, other): return Add(self, other)()
     def __sub__(self, other): return Sub(self, other)()
+    def __mul__(self, other): return Mul(self, other)()
+
+    def sum(self, dim=None): return Sum(self, dim)()
+    def mean(self, dim=None): return Mean(self, dim)()
+    def smul(self, scalar): return ScalarMul(self, scalar)()
+
+    def get_item(self):
+        assert len(self.shape) == 1 and self.shape[0] == 1, "get_item only defined for scalar "
+        return self.storage._get_pointer(self.dtype.ptr_t)[0]
 
     def tolist(self): 
-        return self.storage._to_python_list(self.shape)
+        if len(self.shape):
+            return self.storage._to_python_list(self.shape, self.dtype.ptr_t)
+        return self.get_item()
 
     def numel(self): return self.shape.numel()
 

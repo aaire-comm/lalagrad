@@ -1,4 +1,5 @@
-void add_int(int *rhs, int* lhs, int* res, int size){
+void fill_float(float* blk, float value, int size){
+ 
     #pragma omp parallel
     {
         int nthreads = omp_get_num_threads();
@@ -11,11 +12,9 @@ void add_int(int *rhs, int* lhs, int* res, int size){
         if (end > size){
             end = size;
         }
-        for (int i = start; i < end; i++) {
-            res[i] = rhs[i] + lhs[i];
+
+        for (int i = start; i < end; ++i) {
+            blk[i] =  value;
         }
-        
-
-    }
+    }   
 }
-

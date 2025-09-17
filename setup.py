@@ -24,6 +24,30 @@ compiler_args = ["-shared", "-fopenmp", "-fPIC",  path.join(_c_lib_shared , "lib
 try:
     s = subprocess.call([compiler] + compiler_args)
     print("C library compiled")
+
+
+
+    with open(path.join(_c_lib_shared, _c_lib_kernel_header)) as header:
+        signs = header.read()
+
+
+    ffi = FFI()
+
+    #this is required so cffi knows about the functions deined in the lib
+    ffi.cdef(signs)
+
+
+    ffi.set_source(
+        _c_lib_name,
+        """
+            #include "_c_lib.h"
+        """,
+        libraries = ["_c_tensor"],
+        extra_objects=[path.abspath(f"{_c_lib_shared}/lib_c_tensor.so")]
+    )
+
+    ffi.compile(tmpdir=_c_lib_shared , verbose=True)
+
 except FileNotFoundError:
     print('gcc not found on you system')
     exit()
@@ -33,35 +57,6 @@ except:
     print("Error compiling lib")
     print("Downloading lib binary")
     download_lib()
-
-
-
-with open(path.join(_c_lib_shared, _c_lib_kernel_header)) as header:
-    signs = header.read()
-
-ffi = FFI()
-
-
-#this is required so cffi knows about the functions deined in the lib
-ffi.cdef(signs)
-
-
-ffi.set_source(
-    _c_lib_name,
-    """
-        #include "_c_lib.h"
-    """,
-    libraries = ["_c_tensor"],
-    library_dirs = ["."],
-    extra_objects=[path.abspath(f"{_c_lib_shared}/lib_c_tensor.so")]
-)
-
-
-ffi.compile(tmpdir=_c_lib_shared ,verbose=True)
-
-
-
-
 
 
 

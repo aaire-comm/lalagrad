@@ -581,52 +581,80 @@ static void *_cffi_types[] = {
 /*  1 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 28), // size_t
 /*  2 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
 /*  3 */ _CFFI_OP(_CFFI_OP_FUNCTION, 4), // void *()(void *, int, size_t)
-/*  4 */ _CFFI_OP(_CFFI_OP_POINTER, 49), // void *
+/*  4 */ _CFFI_OP(_CFFI_OP_POINTER, 77), // void *
 /*  5 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7), // int
 /*  6 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 28),
 /*  7 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/*  8 */ _CFFI_OP(_CFFI_OP_FUNCTION, 49), // void()(float *, float *, float *, int)
-/*  9 */ _CFFI_OP(_CFFI_OP_POINTER, 21), // float *
+/*  8 */ _CFFI_OP(_CFFI_OP_FUNCTION, 77), // void()(float *, float *, float *, int)
+/*  9 */ _CFFI_OP(_CFFI_OP_POINTER, 27), // float *
 /* 10 */ _CFFI_OP(_CFFI_OP_NOOP, 9),
 /* 11 */ _CFFI_OP(_CFFI_OP_NOOP, 9),
 /* 12 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
 /* 13 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 14 */ _CFFI_OP(_CFFI_OP_FUNCTION, 49), // void()(float *, float *, int)
+/* 14 */ _CFFI_OP(_CFFI_OP_FUNCTION, 77), // void()(float *, float *, int *, int *)
 /* 15 */ _CFFI_OP(_CFFI_OP_NOOP, 9),
 /* 16 */ _CFFI_OP(_CFFI_OP_NOOP, 9),
-/* 17 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 18 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 19 */ _CFFI_OP(_CFFI_OP_FUNCTION, 49), // void()(float *, float, int)
-/* 20 */ _CFFI_OP(_CFFI_OP_NOOP, 9),
-/* 21 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 13), // float
-/* 22 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 23 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 24 */ _CFFI_OP(_CFFI_OP_FUNCTION, 49), // void()(int *, int *, int *, int)
-/* 25 */ _CFFI_OP(_CFFI_OP_POINTER, 5), // int *
-/* 26 */ _CFFI_OP(_CFFI_OP_NOOP, 25),
-/* 27 */ _CFFI_OP(_CFFI_OP_NOOP, 25),
+/* 17 */ _CFFI_OP(_CFFI_OP_POINTER, 5), // int *
+/* 18 */ _CFFI_OP(_CFFI_OP_NOOP, 17),
+/* 19 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 20 */ _CFFI_OP(_CFFI_OP_FUNCTION, 77), // void()(float *, float *, int)
+/* 21 */ _CFFI_OP(_CFFI_OP_NOOP, 9),
+/* 22 */ _CFFI_OP(_CFFI_OP_NOOP, 9),
+/* 23 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 24 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 25 */ _CFFI_OP(_CFFI_OP_FUNCTION, 77), // void()(float *, float, int)
+/* 26 */ _CFFI_OP(_CFFI_OP_NOOP, 9),
+/* 27 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 13), // float
 /* 28 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
 /* 29 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 30 */ _CFFI_OP(_CFFI_OP_FUNCTION, 49), // void()(int *, int *, int)
-/* 31 */ _CFFI_OP(_CFFI_OP_NOOP, 25),
-/* 32 */ _CFFI_OP(_CFFI_OP_NOOP, 25),
+/* 30 */ _CFFI_OP(_CFFI_OP_FUNCTION, 77), // void()(float *, int, int, int *, int, int)
+/* 31 */ _CFFI_OP(_CFFI_OP_NOOP, 9),
+/* 32 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
 /* 33 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 34 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 35 */ _CFFI_OP(_CFFI_OP_FUNCTION, 49), // void()(int *, int, int *, int)
-/* 36 */ _CFFI_OP(_CFFI_OP_NOOP, 25),
-/* 37 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 38 */ _CFFI_OP(_CFFI_OP_NOOP, 25),
-/* 39 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 40 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 41 */ _CFFI_OP(_CFFI_OP_FUNCTION, 49), // void()(int *, int, int)
-/* 42 */ _CFFI_OP(_CFFI_OP_NOOP, 25),
-/* 43 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 44 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 45 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 46 */ _CFFI_OP(_CFFI_OP_FUNCTION, 49), // void()(void *)
-/* 47 */ _CFFI_OP(_CFFI_OP_NOOP, 4),
-/* 48 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 49 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 0), // void
+/* 34 */ _CFFI_OP(_CFFI_OP_NOOP, 17),
+/* 35 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 36 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 37 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 38 */ _CFFI_OP(_CFFI_OP_FUNCTION, 77), // void()(int *, int *, int *, int *)
+/* 39 */ _CFFI_OP(_CFFI_OP_NOOP, 17),
+/* 40 */ _CFFI_OP(_CFFI_OP_NOOP, 17),
+/* 41 */ _CFFI_OP(_CFFI_OP_NOOP, 17),
+/* 42 */ _CFFI_OP(_CFFI_OP_NOOP, 17),
+/* 43 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 44 */ _CFFI_OP(_CFFI_OP_FUNCTION, 77), // void()(int *, int *, int *, int)
+/* 45 */ _CFFI_OP(_CFFI_OP_NOOP, 17),
+/* 46 */ _CFFI_OP(_CFFI_OP_NOOP, 17),
+/* 47 */ _CFFI_OP(_CFFI_OP_NOOP, 17),
+/* 48 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 49 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 50 */ _CFFI_OP(_CFFI_OP_FUNCTION, 77), // void()(int *, int *, int)
+/* 51 */ _CFFI_OP(_CFFI_OP_NOOP, 17),
+/* 52 */ _CFFI_OP(_CFFI_OP_NOOP, 17),
+/* 53 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 54 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 55 */ _CFFI_OP(_CFFI_OP_FUNCTION, 77), // void()(int *, int, int *, int)
+/* 56 */ _CFFI_OP(_CFFI_OP_NOOP, 17),
+/* 57 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 58 */ _CFFI_OP(_CFFI_OP_NOOP, 17),
+/* 59 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 60 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 61 */ _CFFI_OP(_CFFI_OP_FUNCTION, 77), // void()(int *, int, int)
+/* 62 */ _CFFI_OP(_CFFI_OP_NOOP, 17),
+/* 63 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 64 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 65 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 66 */ _CFFI_OP(_CFFI_OP_FUNCTION, 77), // void()(int *, int, int, int *, int, int)
+/* 67 */ _CFFI_OP(_CFFI_OP_NOOP, 17),
+/* 68 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 69 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 70 */ _CFFI_OP(_CFFI_OP_NOOP, 17),
+/* 71 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 72 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 73 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 74 */ _CFFI_OP(_CFFI_OP_FUNCTION, 77), // void()(void *)
+/* 75 */ _CFFI_OP(_CFFI_OP_NOOP, 4),
+/* 76 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 77 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 0), // void
 };
 
 static void _cffi_d_add_float(float * x0, float * x1, float * x2, int x3)
@@ -720,28 +748,28 @@ _cffi_f_add_int(PyObject *self, PyObject *args)
     return NULL;
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg0, (char **)&x0);
+      _cffi_type(17), arg0, (char **)&x0);
   if (datasize != 0) {
     x0 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg0, (char **)&x0,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg0, (char **)&x0,
             datasize, &large_args_free) < 0)
       return NULL;
   }
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg1, (char **)&x1);
+      _cffi_type(17), arg1, (char **)&x1);
   if (datasize != 0) {
     x1 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg1, (char **)&x1,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg1, (char **)&x1,
             datasize, &large_args_free) < 0)
       return NULL;
   }
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg2, (char **)&x2);
+      _cffi_type(17), arg2, (char **)&x2);
   if (datasize != 0) {
     x2 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg2, (char **)&x2,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg2, (char **)&x2,
             datasize, &large_args_free) < 0)
       return NULL;
   }
@@ -788,10 +816,10 @@ _cffi_f_add_scalar_int(PyObject *self, PyObject *args)
     return NULL;
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg0, (char **)&x0);
+      _cffi_type(17), arg0, (char **)&x0);
   if (datasize != 0) {
     x0 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg0, (char **)&x0,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg0, (char **)&x0,
             datasize, &large_args_free) < 0)
       return NULL;
   }
@@ -801,10 +829,10 @@ _cffi_f_add_scalar_int(PyObject *self, PyObject *args)
     return NULL;
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg2, (char **)&x2);
+      _cffi_type(17), arg2, (char **)&x2);
   if (datasize != 0) {
     x2 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg2, (char **)&x2,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg2, (char **)&x2,
             datasize, &large_args_free) < 0)
       return NULL;
   }
@@ -851,28 +879,28 @@ _cffi_f_div_int(PyObject *self, PyObject *args)
     return NULL;
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg0, (char **)&x0);
+      _cffi_type(17), arg0, (char **)&x0);
   if (datasize != 0) {
     x0 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg0, (char **)&x0,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg0, (char **)&x0,
             datasize, &large_args_free) < 0)
       return NULL;
   }
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg1, (char **)&x1);
+      _cffi_type(17), arg1, (char **)&x1);
   if (datasize != 0) {
     x1 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg1, (char **)&x1,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg1, (char **)&x1,
             datasize, &large_args_free) < 0)
       return NULL;
   }
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg2, (char **)&x2);
+      _cffi_type(17), arg2, (char **)&x2);
   if (datasize != 0) {
     x2 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg2, (char **)&x2,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg2, (char **)&x2,
             datasize, &large_args_free) < 0)
       return NULL;
   }
@@ -919,10 +947,10 @@ _cffi_f_div_scalar_int(PyObject *self, PyObject *args)
     return NULL;
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg0, (char **)&x0);
+      _cffi_type(17), arg0, (char **)&x0);
   if (datasize != 0) {
     x0 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg0, (char **)&x0,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg0, (char **)&x0,
             datasize, &large_args_free) < 0)
       return NULL;
   }
@@ -932,10 +960,10 @@ _cffi_f_div_scalar_int(PyObject *self, PyObject *args)
     return NULL;
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg2, (char **)&x2);
+      _cffi_type(17), arg2, (char **)&x2);
   if (datasize != 0) {
     x2 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg2, (char **)&x2,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg2, (char **)&x2,
             datasize, &large_args_free) < 0)
       return NULL;
   }
@@ -1032,10 +1060,10 @@ _cffi_f_fill_int(PyObject *self, PyObject *args)
     return NULL;
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg0, (char **)&x0);
+      _cffi_type(17), arg0, (char **)&x0);
   if (datasize != 0) {
     x0 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg0, (char **)&x0,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg0, (char **)&x0,
             datasize, &large_args_free) < 0)
       return NULL;
   }
@@ -1127,6 +1155,152 @@ _cffi_f_malloc(PyObject *self, PyObject *arg0)
 }
 #else
 #  define _cffi_f_malloc _cffi_d_malloc
+#endif
+
+static void _cffi_d_matmul_float(float * x0, float * x1, int * x2, int * x3)
+{
+  matmul_float(x0, x1, x2, x3);
+}
+#ifndef PYPY_VERSION
+static PyObject *
+_cffi_f_matmul_float(PyObject *self, PyObject *args)
+{
+  float * x0;
+  float * x1;
+  int * x2;
+  int * x3;
+  Py_ssize_t datasize;
+  struct _cffi_freeme_s *large_args_free = NULL;
+  PyObject *arg0;
+  PyObject *arg1;
+  PyObject *arg2;
+  PyObject *arg3;
+
+  if (!PyArg_UnpackTuple(args, "matmul_float", 4, 4, &arg0, &arg1, &arg2, &arg3))
+    return NULL;
+
+  datasize = _cffi_prepare_pointer_call_argument(
+      _cffi_type(9), arg0, (char **)&x0);
+  if (datasize != 0) {
+    x0 = ((size_t)datasize) <= 640 ? (float *)alloca((size_t)datasize) : NULL;
+    if (_cffi_convert_array_argument(_cffi_type(9), arg0, (char **)&x0,
+            datasize, &large_args_free) < 0)
+      return NULL;
+  }
+
+  datasize = _cffi_prepare_pointer_call_argument(
+      _cffi_type(9), arg1, (char **)&x1);
+  if (datasize != 0) {
+    x1 = ((size_t)datasize) <= 640 ? (float *)alloca((size_t)datasize) : NULL;
+    if (_cffi_convert_array_argument(_cffi_type(9), arg1, (char **)&x1,
+            datasize, &large_args_free) < 0)
+      return NULL;
+  }
+
+  datasize = _cffi_prepare_pointer_call_argument(
+      _cffi_type(17), arg2, (char **)&x2);
+  if (datasize != 0) {
+    x2 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
+    if (_cffi_convert_array_argument(_cffi_type(17), arg2, (char **)&x2,
+            datasize, &large_args_free) < 0)
+      return NULL;
+  }
+
+  datasize = _cffi_prepare_pointer_call_argument(
+      _cffi_type(17), arg3, (char **)&x3);
+  if (datasize != 0) {
+    x3 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
+    if (_cffi_convert_array_argument(_cffi_type(17), arg3, (char **)&x3,
+            datasize, &large_args_free) < 0)
+      return NULL;
+  }
+
+  Py_BEGIN_ALLOW_THREADS
+  _cffi_restore_errno();
+  { matmul_float(x0, x1, x2, x3); }
+  _cffi_save_errno();
+  Py_END_ALLOW_THREADS
+
+  (void)self; /* unused */
+  if (large_args_free != NULL) _cffi_free_array_arguments(large_args_free);
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+#else
+#  define _cffi_f_matmul_float _cffi_d_matmul_float
+#endif
+
+static void _cffi_d_matmul_int(int * x0, int * x1, int * x2, int * x3)
+{
+  matmul_int(x0, x1, x2, x3);
+}
+#ifndef PYPY_VERSION
+static PyObject *
+_cffi_f_matmul_int(PyObject *self, PyObject *args)
+{
+  int * x0;
+  int * x1;
+  int * x2;
+  int * x3;
+  Py_ssize_t datasize;
+  struct _cffi_freeme_s *large_args_free = NULL;
+  PyObject *arg0;
+  PyObject *arg1;
+  PyObject *arg2;
+  PyObject *arg3;
+
+  if (!PyArg_UnpackTuple(args, "matmul_int", 4, 4, &arg0, &arg1, &arg2, &arg3))
+    return NULL;
+
+  datasize = _cffi_prepare_pointer_call_argument(
+      _cffi_type(17), arg0, (char **)&x0);
+  if (datasize != 0) {
+    x0 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
+    if (_cffi_convert_array_argument(_cffi_type(17), arg0, (char **)&x0,
+            datasize, &large_args_free) < 0)
+      return NULL;
+  }
+
+  datasize = _cffi_prepare_pointer_call_argument(
+      _cffi_type(17), arg1, (char **)&x1);
+  if (datasize != 0) {
+    x1 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
+    if (_cffi_convert_array_argument(_cffi_type(17), arg1, (char **)&x1,
+            datasize, &large_args_free) < 0)
+      return NULL;
+  }
+
+  datasize = _cffi_prepare_pointer_call_argument(
+      _cffi_type(17), arg2, (char **)&x2);
+  if (datasize != 0) {
+    x2 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
+    if (_cffi_convert_array_argument(_cffi_type(17), arg2, (char **)&x2,
+            datasize, &large_args_free) < 0)
+      return NULL;
+  }
+
+  datasize = _cffi_prepare_pointer_call_argument(
+      _cffi_type(17), arg3, (char **)&x3);
+  if (datasize != 0) {
+    x3 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
+    if (_cffi_convert_array_argument(_cffi_type(17), arg3, (char **)&x3,
+            datasize, &large_args_free) < 0)
+      return NULL;
+  }
+
+  Py_BEGIN_ALLOW_THREADS
+  _cffi_restore_errno();
+  { matmul_int(x0, x1, x2, x3); }
+  _cffi_save_errno();
+  Py_END_ALLOW_THREADS
+
+  (void)self; /* unused */
+  if (large_args_free != NULL) _cffi_free_array_arguments(large_args_free);
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+#else
+#  define _cffi_f_matmul_int _cffi_d_matmul_int
 #endif
 
 static void _cffi_d_mean_(float * x0, float * x1, int x2)
@@ -1263,28 +1437,28 @@ _cffi_f_mul_int(PyObject *self, PyObject *args)
     return NULL;
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg0, (char **)&x0);
+      _cffi_type(17), arg0, (char **)&x0);
   if (datasize != 0) {
     x0 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg0, (char **)&x0,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg0, (char **)&x0,
             datasize, &large_args_free) < 0)
       return NULL;
   }
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg1, (char **)&x1);
+      _cffi_type(17), arg1, (char **)&x1);
   if (datasize != 0) {
     x1 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg1, (char **)&x1,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg1, (char **)&x1,
             datasize, &large_args_free) < 0)
       return NULL;
   }
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg2, (char **)&x2);
+      _cffi_type(17), arg2, (char **)&x2);
   if (datasize != 0) {
     x2 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg2, (char **)&x2,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg2, (char **)&x2,
             datasize, &large_args_free) < 0)
       return NULL;
   }
@@ -1331,10 +1505,10 @@ _cffi_f_mul_scalar_int(PyObject *self, PyObject *args)
     return NULL;
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg0, (char **)&x0);
+      _cffi_type(17), arg0, (char **)&x0);
   if (datasize != 0) {
     x0 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg0, (char **)&x0,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg0, (char **)&x0,
             datasize, &large_args_free) < 0)
       return NULL;
   }
@@ -1344,10 +1518,10 @@ _cffi_f_mul_scalar_int(PyObject *self, PyObject *args)
     return NULL;
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg2, (char **)&x2);
+      _cffi_type(17), arg2, (char **)&x2);
   if (datasize != 0) {
     x2 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg2, (char **)&x2,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg2, (char **)&x2,
             datasize, &large_args_free) < 0)
       return NULL;
   }
@@ -1392,19 +1566,19 @@ _cffi_f_relu_int(PyObject *self, PyObject *args)
     return NULL;
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg0, (char **)&x0);
+      _cffi_type(17), arg0, (char **)&x0);
   if (datasize != 0) {
     x0 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg0, (char **)&x0,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg0, (char **)&x0,
             datasize, &large_args_free) < 0)
       return NULL;
   }
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg1, (char **)&x1);
+      _cffi_type(17), arg1, (char **)&x1);
   if (datasize != 0) {
     x1 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg1, (char **)&x1,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg1, (char **)&x1,
             datasize, &large_args_free) < 0)
       return NULL;
   }
@@ -1451,28 +1625,28 @@ _cffi_f_sub_int(PyObject *self, PyObject *args)
     return NULL;
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg0, (char **)&x0);
+      _cffi_type(17), arg0, (char **)&x0);
   if (datasize != 0) {
     x0 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg0, (char **)&x0,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg0, (char **)&x0,
             datasize, &large_args_free) < 0)
       return NULL;
   }
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg1, (char **)&x1);
+      _cffi_type(17), arg1, (char **)&x1);
   if (datasize != 0) {
     x1 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg1, (char **)&x1,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg1, (char **)&x1,
             datasize, &large_args_free) < 0)
       return NULL;
   }
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg2, (char **)&x2);
+      _cffi_type(17), arg2, (char **)&x2);
   if (datasize != 0) {
     x2 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg2, (char **)&x2,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg2, (char **)&x2,
             datasize, &large_args_free) < 0)
       return NULL;
   }
@@ -1519,10 +1693,10 @@ _cffi_f_sub_scalar_int(PyObject *self, PyObject *args)
     return NULL;
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg0, (char **)&x0);
+      _cffi_type(17), arg0, (char **)&x0);
   if (datasize != 0) {
     x0 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg0, (char **)&x0,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg0, (char **)&x0,
             datasize, &large_args_free) < 0)
       return NULL;
   }
@@ -1532,10 +1706,10 @@ _cffi_f_sub_scalar_int(PyObject *self, PyObject *args)
     return NULL;
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg2, (char **)&x2);
+      _cffi_type(17), arg2, (char **)&x2);
   if (datasize != 0) {
     x2 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg2, (char **)&x2,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg2, (char **)&x2,
             datasize, &large_args_free) < 0)
       return NULL;
   }
@@ -1637,19 +1811,19 @@ _cffi_f_sum_int(PyObject *self, PyObject *args)
     return NULL;
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg0, (char **)&x0);
+      _cffi_type(17), arg0, (char **)&x0);
   if (datasize != 0) {
     x0 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg0, (char **)&x0,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg0, (char **)&x0,
             datasize, &large_args_free) < 0)
       return NULL;
   }
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(25), arg1, (char **)&x1);
+      _cffi_type(17), arg1, (char **)&x1);
   if (datasize != 0) {
     x1 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(25), arg1, (char **)&x1,
+    if (_cffi_convert_array_argument(_cffi_type(17), arg1, (char **)&x1,
             datasize, &large_args_free) < 0)
       return NULL;
   }
@@ -1673,25 +1847,179 @@ _cffi_f_sum_int(PyObject *self, PyObject *args)
 #  define _cffi_f_sum_int _cffi_d_sum_int
 #endif
 
+static void _cffi_d_transpose_float(float * x0, int x1, int x2, int * x3, int x4, int x5)
+{
+  transpose_float(x0, x1, x2, x3, x4, x5);
+}
+#ifndef PYPY_VERSION
+static PyObject *
+_cffi_f_transpose_float(PyObject *self, PyObject *args)
+{
+  float * x0;
+  int x1;
+  int x2;
+  int * x3;
+  int x4;
+  int x5;
+  Py_ssize_t datasize;
+  struct _cffi_freeme_s *large_args_free = NULL;
+  PyObject *arg0;
+  PyObject *arg1;
+  PyObject *arg2;
+  PyObject *arg3;
+  PyObject *arg4;
+  PyObject *arg5;
+
+  if (!PyArg_UnpackTuple(args, "transpose_float", 6, 6, &arg0, &arg1, &arg2, &arg3, &arg4, &arg5))
+    return NULL;
+
+  datasize = _cffi_prepare_pointer_call_argument(
+      _cffi_type(9), arg0, (char **)&x0);
+  if (datasize != 0) {
+    x0 = ((size_t)datasize) <= 640 ? (float *)alloca((size_t)datasize) : NULL;
+    if (_cffi_convert_array_argument(_cffi_type(9), arg0, (char **)&x0,
+            datasize, &large_args_free) < 0)
+      return NULL;
+  }
+
+  x1 = _cffi_to_c_int(arg1, int);
+  if (x1 == (int)-1 && PyErr_Occurred())
+    return NULL;
+
+  x2 = _cffi_to_c_int(arg2, int);
+  if (x2 == (int)-1 && PyErr_Occurred())
+    return NULL;
+
+  datasize = _cffi_prepare_pointer_call_argument(
+      _cffi_type(17), arg3, (char **)&x3);
+  if (datasize != 0) {
+    x3 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
+    if (_cffi_convert_array_argument(_cffi_type(17), arg3, (char **)&x3,
+            datasize, &large_args_free) < 0)
+      return NULL;
+  }
+
+  x4 = _cffi_to_c_int(arg4, int);
+  if (x4 == (int)-1 && PyErr_Occurred())
+    return NULL;
+
+  x5 = _cffi_to_c_int(arg5, int);
+  if (x5 == (int)-1 && PyErr_Occurred())
+    return NULL;
+
+  Py_BEGIN_ALLOW_THREADS
+  _cffi_restore_errno();
+  { transpose_float(x0, x1, x2, x3, x4, x5); }
+  _cffi_save_errno();
+  Py_END_ALLOW_THREADS
+
+  (void)self; /* unused */
+  if (large_args_free != NULL) _cffi_free_array_arguments(large_args_free);
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+#else
+#  define _cffi_f_transpose_float _cffi_d_transpose_float
+#endif
+
+static void _cffi_d_transpose_int(int * x0, int x1, int x2, int * x3, int x4, int x5)
+{
+  transpose_int(x0, x1, x2, x3, x4, x5);
+}
+#ifndef PYPY_VERSION
+static PyObject *
+_cffi_f_transpose_int(PyObject *self, PyObject *args)
+{
+  int * x0;
+  int x1;
+  int x2;
+  int * x3;
+  int x4;
+  int x5;
+  Py_ssize_t datasize;
+  struct _cffi_freeme_s *large_args_free = NULL;
+  PyObject *arg0;
+  PyObject *arg1;
+  PyObject *arg2;
+  PyObject *arg3;
+  PyObject *arg4;
+  PyObject *arg5;
+
+  if (!PyArg_UnpackTuple(args, "transpose_int", 6, 6, &arg0, &arg1, &arg2, &arg3, &arg4, &arg5))
+    return NULL;
+
+  datasize = _cffi_prepare_pointer_call_argument(
+      _cffi_type(17), arg0, (char **)&x0);
+  if (datasize != 0) {
+    x0 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
+    if (_cffi_convert_array_argument(_cffi_type(17), arg0, (char **)&x0,
+            datasize, &large_args_free) < 0)
+      return NULL;
+  }
+
+  x1 = _cffi_to_c_int(arg1, int);
+  if (x1 == (int)-1 && PyErr_Occurred())
+    return NULL;
+
+  x2 = _cffi_to_c_int(arg2, int);
+  if (x2 == (int)-1 && PyErr_Occurred())
+    return NULL;
+
+  datasize = _cffi_prepare_pointer_call_argument(
+      _cffi_type(17), arg3, (char **)&x3);
+  if (datasize != 0) {
+    x3 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
+    if (_cffi_convert_array_argument(_cffi_type(17), arg3, (char **)&x3,
+            datasize, &large_args_free) < 0)
+      return NULL;
+  }
+
+  x4 = _cffi_to_c_int(arg4, int);
+  if (x4 == (int)-1 && PyErr_Occurred())
+    return NULL;
+
+  x5 = _cffi_to_c_int(arg5, int);
+  if (x5 == (int)-1 && PyErr_Occurred())
+    return NULL;
+
+  Py_BEGIN_ALLOW_THREADS
+  _cffi_restore_errno();
+  { transpose_int(x0, x1, x2, x3, x4, x5); }
+  _cffi_save_errno();
+  Py_END_ALLOW_THREADS
+
+  (void)self; /* unused */
+  if (large_args_free != NULL) _cffi_free_array_arguments(large_args_free);
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+#else
+#  define _cffi_f_transpose_int _cffi_d_transpose_int
+#endif
+
 static const struct _cffi_global_s _cffi_globals[] = {
   { "add_float", (void *)_cffi_f_add_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 8), (void *)_cffi_d_add_float },
-  { "add_int", (void *)_cffi_f_add_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 24), (void *)_cffi_d_add_int },
-  { "add_scalar_int", (void *)_cffi_f_add_scalar_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 35), (void *)_cffi_d_add_scalar_int },
-  { "div_int", (void *)_cffi_f_div_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 24), (void *)_cffi_d_div_int },
-  { "div_scalar_int", (void *)_cffi_f_div_scalar_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 35), (void *)_cffi_d_div_scalar_int },
-  { "fill_float", (void *)_cffi_f_fill_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 19), (void *)_cffi_d_fill_float },
-  { "fill_int", (void *)_cffi_f_fill_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 41), (void *)_cffi_d_fill_int },
-  { "free", (void *)_cffi_f_free, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_O, 46), (void *)_cffi_d_free },
+  { "add_int", (void *)_cffi_f_add_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 44), (void *)_cffi_d_add_int },
+  { "add_scalar_int", (void *)_cffi_f_add_scalar_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 55), (void *)_cffi_d_add_scalar_int },
+  { "div_int", (void *)_cffi_f_div_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 44), (void *)_cffi_d_div_int },
+  { "div_scalar_int", (void *)_cffi_f_div_scalar_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 55), (void *)_cffi_d_div_scalar_int },
+  { "fill_float", (void *)_cffi_f_fill_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 25), (void *)_cffi_d_fill_float },
+  { "fill_int", (void *)_cffi_f_fill_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 61), (void *)_cffi_d_fill_int },
+  { "free", (void *)_cffi_f_free, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_O, 74), (void *)_cffi_d_free },
   { "malloc", (void *)_cffi_f_malloc, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_O, 0), (void *)_cffi_d_malloc },
-  { "mean_", (void *)_cffi_f_mean_, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 14), (void *)_cffi_d_mean_ },
+  { "matmul_float", (void *)_cffi_f_matmul_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 14), (void *)_cffi_d_matmul_float },
+  { "matmul_int", (void *)_cffi_f_matmul_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 38), (void *)_cffi_d_matmul_int },
+  { "mean_", (void *)_cffi_f_mean_, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 20), (void *)_cffi_d_mean_ },
   { "memset", (void *)_cffi_f_memset, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 3), (void *)_cffi_d_memset },
-  { "mul_int", (void *)_cffi_f_mul_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 24), (void *)_cffi_d_mul_int },
-  { "mul_scalar_int", (void *)_cffi_f_mul_scalar_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 35), (void *)_cffi_d_mul_scalar_int },
-  { "relu_int", (void *)_cffi_f_relu_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 30), (void *)_cffi_d_relu_int },
-  { "sub_int", (void *)_cffi_f_sub_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 24), (void *)_cffi_d_sub_int },
-  { "sub_scalar_int", (void *)_cffi_f_sub_scalar_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 35), (void *)_cffi_d_sub_scalar_int },
-  { "sum_float", (void *)_cffi_f_sum_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 14), (void *)_cffi_d_sum_float },
-  { "sum_int", (void *)_cffi_f_sum_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 30), (void *)_cffi_d_sum_int },
+  { "mul_int", (void *)_cffi_f_mul_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 44), (void *)_cffi_d_mul_int },
+  { "mul_scalar_int", (void *)_cffi_f_mul_scalar_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 55), (void *)_cffi_d_mul_scalar_int },
+  { "relu_int", (void *)_cffi_f_relu_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 50), (void *)_cffi_d_relu_int },
+  { "sub_int", (void *)_cffi_f_sub_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 44), (void *)_cffi_d_sub_int },
+  { "sub_scalar_int", (void *)_cffi_f_sub_scalar_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 55), (void *)_cffi_d_sub_scalar_int },
+  { "sum_float", (void *)_cffi_f_sum_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 20), (void *)_cffi_d_sum_float },
+  { "sum_int", (void *)_cffi_f_sum_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 50), (void *)_cffi_d_sum_int },
+  { "transpose_float", (void *)_cffi_f_transpose_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 30), (void *)_cffi_d_transpose_float },
+  { "transpose_int", (void *)_cffi_f_transpose_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 66), (void *)_cffi_d_transpose_int },
 };
 
 static const struct _cffi_type_context_s _cffi_type_context = {
@@ -1701,12 +2029,12 @@ static const struct _cffi_type_context_s _cffi_type_context = {
   NULL,  /* no struct_unions */
   NULL,  /* no enums */
   NULL,  /* no typenames */
-  18,  /* num_globals */
+  22,  /* num_globals */
   0,  /* num_struct_unions */
   0,  /* num_enums */
   0,  /* num_typenames */
   NULL,  /* no includes */
-  50,  /* num_types */
+  78,  /* num_types */
   0,  /* flags */
 };
 

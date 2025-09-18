@@ -2,7 +2,7 @@
 #just a bunch of python function that call to their equivalent C cffi lib  functions
 
 from .shared._c_lib_tensor import lib, ffi
-from typing import TYPE_CHECKING
+from typing import Tuple
 
 class Blob: ...
 
@@ -45,8 +45,15 @@ class Int32Ops:
     def sum_t(t: Blob, res: Blob):
         lib.sum_int(t._get_pointer("int*"), res._get_pointer("int*"), int(t.nbytes/4))
     
+    @staticmethod
     def fill(t: Blob, value):
         lib.fill_float(t._get_pointer("int*"), value)
+
+    @staticmethod
+    def matmul(t1: Blob, t2: Blob, s0: Tuple[int], s1: Tuple[int]):
+        s0_ptr = ffi.new(f"int[{len(s0)}]", s0)
+        s1_ptr = ffi.new(f"int[{len(s1)}]", s1)
+        lib.matmul_int(t1._get_pointer("int*"), t2._get_pointer("int*"), s0_ptr, s1_ptr)
 
 
 
@@ -64,8 +71,20 @@ class Float32ops:
     def sum_t(t: Blob, res: Blob):
         lib.sum_float(t._get_pointer("float*"), res._get_pointer("float*"), int(t.nbytes/4))
 
+    @staticmethod
     def fill(t: Blob, value):
         lib.fill_float(t._get_pointer("float*"), value, int(t.nbytes/4))
+    
+    @staticmethod
+    def matmul(t1: Blob, t2: Blob, s1: Tuple[int], s2: Tuple[int]):
+        lib.matmul_float(t1._get_pointer("float*"), t2._get_pointer("float*"), s1, s2)
+
+    @staticmethod
+    def transpose(t: Blob, dim0: int, dim1: int, strides: Tuple[int]):
+        s = ffi.new(f"int[{len(strides)}]", strides)
+        lib.transpose_float(t._get_pointer("float*"), dim0, dim1, s, int(t.nbytes/4))
+
+
 
     
 ops = {

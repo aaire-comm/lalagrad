@@ -7,10 +7,9 @@ Operation types:
 """
 from typing import List, Optional, Union
 import math
-from .utils import graph_html, get_list_shape
+from .utils import graph_html
 from .ops import *
 from .blob import Blob
-from lala.view import View
 import numpy as np
 from .dtype import Dtype
 from lala._C import ffi
@@ -30,8 +29,7 @@ class Tensor:
                 #TODO: Implement our own list to buffer of dtyper in C
                 np_dtype = np.float32 if dtype is float32 else np.int32
                 arr = np.array(data, dtype=np_dtype, order="C")
-
-                self.shape = View(arr.shape)
+                self.shape = arr.shape
                 nbytes = arr.size * dtype.bytes
                 ptr = arr.ctypes.data
 
@@ -42,21 +40,46 @@ class Tensor:
             #it doesn't copy so any change to this the tensor changes the storage 
             #ultimately chaging the data of any other tensor base on that passed blob
             elif isinstance(data, Blob):
-                self.shape = View(args)
+                self.shape = args
                 blob = data
+            elif isinstance(data, int):
+                self.shape = ()
+                dtype = int32
+                blob = Blob(nbytes=4)
+                blob._get_pointer("int*")[0] = data
+            elif isinstance(data, float):
+                self.shape = ()
+                dtype = int32
+                blob = Blob(nbytes=4)
+                blob._get_pointer("float*")[0] = data
+
             else: 
                 raise TypeError("data must be a 2d list or a matrice instance")
         else: 
             assert len(args) > 0, "shape or data is required"
-            self.shape = View(args)
-            blob = Blob(math.prod(args)*self.shape.numel())
+            self.shape = args
+            blob = Blob(math.prod(args)*self.numel())
             
         self.label = label
+        self.dims = len(self.shape)
         self.storage = blob
         self.dtype = dtype
         self.requires_grad = requires_grad
         self.grad_fn = grad_fn
         self.grad = None
+        
+        if self.dim:
+            s = [1]
+            r = tuple(reversed(self.shape))
+            for i in range(self.dims - 1):
+                s.append(s[i] * r[i])
+                self.strides = tuple(reversed(s))
+        else:
+            self.strides = ()
+
+    @property
+    def T(self):
+        return self.transpose()
 
     @classmethod
     def empty(cls, *args, dtype=float32, requires_grad=False):
@@ -115,9 +138,14 @@ class Tensor:
     def __repr__(self):
         return f"Tensor(shape=<{self.shape}> grad_fn=<{None if self.grad_fn is None else self.grad_fn.name}>)"
     
+    def is_scalar(self):
+        return len(self.shape) == 0
+    
     def view(self, *args): 
-        print(args)
-        return ViewOp(self, View(args))()
+        if len(args):
+            return ViewOp(self, View(args))()
+        return ViewOp(self, self.shape)()  
+        
     
     def to_(self, dtype: Dtype):
         assert self.storage.nbytes / dtype.bytes >= self.numel(), "the dtype provided won't feet in the storage"
@@ -145,19 +173,28 @@ class Tensor:
         graph_html(self, filename=file_name)
         print(f"Computaion Graph exported as {file_name}")
 
-    def __matmul__(self, other):
-        assert self.shape[1] == other.shape[0], f"matmul of invalid shapes {self.shape, other.shape}"
-        return Matmul(self, other)()
+    
 
     def dot(self, other): return (self * other).sum(1)
 
     def __add__(self, other): return Add(self, other)()
     def __sub__(self, other): return Sub(self, other)()
     def __mul__(self, other): return Mul(self, other)()
+    def __matmul__(self, other): return Matmul(self, other)()
 
     def sum(self, dim=None): return Sum(self, dim)()
     def mean(self, dim=None): return Mean(self, dim)()
     def smul(self, scalar): return ScalarMul(self, scalar)()
+
+    def transpose(self, dim0, dim1): return Transpose(self, dim0, dim1)()
+    def broadcast_to(self, *args): 
+        assert len(args) > len(self.shape), "broadcast shape must be greater than the tensor's shape"
+        rev = reversed(args)
+        res = self.clone()
+
+        
+    
+    def spow(self, exp): return ScalarPower(self, exp)()
 
     def get_item(self):
         assert not len(self.shape), "get_item only defined for scalar "
@@ -168,7 +205,9 @@ class Tensor:
             return self.storage._to_python_list(self.shape, self.dtype.ptr_t)
         return self.get_item()
 
-    def numel(self): return self.shape.numel()
+    def numel(self): return math.prod(self.shape)
+    def dim(self): return self.dims
+    def stride(self): return self.strides
 
     def backward(self, upstream_m: Optional["Tensor"]=None):
         assert self.requires_grad, "matrice doesn't requre_grad"

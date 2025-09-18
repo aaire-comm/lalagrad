@@ -1,4 +1,3 @@
-from .tensor import Matrice, Relu
-from ._C.lib_loader import lib
+from .tensor import Tensor, Relu
 
-def relu(m: Matrice): return Relu(m)()
+def relu(m: Tensor): return Relu(m)()

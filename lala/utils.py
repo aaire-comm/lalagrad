@@ -3,6 +3,13 @@ from math import prod
 def view(shape, list, offset=0):
     return [list[i] if len(shape)==1 else view(shape[1:], list) for i in range(shape[0])] 
 
+def get_broadcast_shape(s0, s1):
+    a, b = len(s0), len(s1)
+    s0 = tuple(s0[i] if i < a else 0 for i in range(max(a, b)))
+    s1 = tuple(s1[i] if i < b else 0 for i in range(max(a, b)))
+    
+    return tuple((max(a_, b_) for a_, b_ in zip(s0, s1)))
+
 
 def _to_python_list(arr, shape, off=0): 
     return [arr[off: off+shape[0]][i] for i in range(shape[0])] if len(shape) == 1 else [_to_python_list(arr, shape[1: ], i*prod(shape[1:])) for i in range(shape[0])]
@@ -23,9 +30,9 @@ def graph_html(root, filename="graph.html"):
         visited.add(node)
         if isinstance(node, Tensor):
             if is_root:
-                nodes.append({"id": id(node), "label": str(node) if node.label is None else node.label + str(node.shape), "shape": "box", "color": "#aa5555"})
-            elif node.requires_grad and node.grad is not None:
-                nodes.append({"id": id(node), "label": str(node) + str(node.grad.shape) if node.label is None else node.label + str(node.shape), "shape": "box"})
+                nodes.append({"id": id(node), "label": str(node) if node.label is None else node.label, "shape": "box", "color": "#aa5555"})
+            elif node.requires_grad:
+                nodes.append({"id": id(node), "label": str(node) if node.label is None else node.label, "shape": "box"})
             else:
                 nodes.append({"id": id(node), "label": str(node) if node.label is None else node.label + str(node.shape), "shape": "box", "color": "yellow"})
             if node.src is not None:
@@ -35,7 +42,7 @@ def graph_html(root, filename="graph.html"):
                     edges.append({"from": id(parent), "to": id(node.src)})
                     visit(parent)
         else:
-            nodes.append({"id": id(node), "label": str(node), "shape": "box"})
+            nodes.append({"id": id(node), "label": str(node), "shape": "box", "color": "#ff5555"})
 
     visit(root, True)
 

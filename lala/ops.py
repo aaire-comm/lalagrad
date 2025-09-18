@@ -2,6 +2,7 @@ from .utils import *
 from .dtype import int32, Null
 from .blob import Blob
 from ._C import ops
+import math
 
 def _transpose(data):
     return [[row[i] for row in data] for i in range(len(data[0]))]
@@ -17,8 +18,12 @@ class Operation:
         self.operands = args
         for operand in args:
             if isinstance(operand, Tensor):
-                print("set grad_fn")
                 operand.grad_fn = self
+                
+        #we need to know the operation dtype
+        self.op_dtype = max(operand.dtype if isinstance(operand, Tensor) else Null for operand in self.operands)
+        self.requires_grad =  any(operand.requires_grad if isinstance(operand, Tensor) else False for operand in self.operands)
+        
 
 
     @classmethod
@@ -34,24 +39,22 @@ class Operation:
         from .tensor import Tensor
         assert operand in self.operands, f"operand not attached to {self}"
         self.operands = (t if t is not operand else Tensor.dummy() for t in self.operands)
-        
-    
-
 
     def __call__(self): 
         from lala.tensor import Tensor
         assertion, msg = self.validate()
         assert assertion, msg
 
-        dtype = max(operand.dtype if isinstance(operand, Tensor) else Null for operand in self.operands)
-        requires_grad = any(operand.requires_grad if isinstance(operand, Tensor) else False for operand in self.operands)
-        if self.op_type == "SReduce":
-            return Tensor(data=self.forward(), src=self, dtype=dtype, requires_grad=requires_grad)
-        elif self.op_type == "View":
-            shape = self.forward()
-            return Tensor(*shape, data=self.operands[0].storage, src=self, dtype=dtype, requires_grad=requires_grad)
-        return Tensor(*self.operands[0].shape, data=self.forward(), src=self, dtype=dtype, requires_grad=requires_grad)
+        data, shape = self.forward()
+
+        #Don't include in the Comp graph unless it requires gradien
+        if self.requires_grad:
+            src = self
+        else:
+            src = None
+        return Tensor(*shape, data=data, src=src, dtype=self.op_dtype, requires_grad=self.requires_grad)
     
+
     def backward(self, upstream_m):
         from lala.tensor import Tensor
         for operand in self.operands:
@@ -89,8 +92,8 @@ class Mean(Operation):
     def forward(self):
         m, _ = self.operands
         res = Blob(m.dtype.bytes)
-        ops[m.dtype.name].mean_t(m.storage, res)
-        return res
+        ops[self.op_dtype.name].mean_t(m.storage, res)
+        return res, ()
     
     def gradient(self):
         m = self.operands[0]
@@ -103,11 +106,16 @@ class Transpose(Operation):
         super().__init__("Transpose", "View", *args)
 
     def forward(self): 
-        m = self.operands[0]
-        return _transpose(m.data)
+        m, dims = self.operands
+        new_shape = m.shape
+        a = new_shape[dims[0]]
+        new_shape[dims[0]] = new_shape[dims[1]]
+        new_shape[dims[1]] = a
+        return m.storage, new_shape
     
     def gradient(self, upstream_m):
-        return _transpose(upstream_m.data)
+        dims = self.operands[1]
+        return upstream_m.transpose(dims[1], dims[0])
         
     
 class Add(Operation):
@@ -121,8 +129,8 @@ class Add(Operation):
     def forward(self):
         rhs, lhs = self.operands
         res = Blob(nbytes=rhs.storage.nbytes)
-        ops[rhs.dtype.name].add_t(rhs.storage, lhs.storage, res)
-        return res
+        ops[self.op_dtype.name].add_t(rhs.storage, lhs.storage, res)
+        return res, rhs.shape
 
     def gradient(self, w_r_t): 
         assert w_r_t in self.operands, "w_r_t is not an operand of this grad_fn"
@@ -140,8 +148,8 @@ class Sub(Operation):
     def forward(self):
         rhs, lhs = self.operands
         res = Blob(nbytes=rhs.storage.nbytes)
-        ops[rhs.dtype.name].sub_t(rhs.storage, lhs.storage, res)
-        return res
+        ops[self.op_dtype.name].sub_t(rhs.storage, lhs.storage, res)
+        return res, rhs.shape
     
 
     def gradient(self, w_r_t): 
@@ -152,7 +160,6 @@ class Sub(Operation):
         else:
             return  [[-1 for _ in row] for row in w_r_t.data]
             
-    
 
 class Sum(Operation):
     def __init__(self, *args): 
@@ -164,8 +171,8 @@ class Sum(Operation):
         if dim is None:
             rhs, _ = self.operands
             res = Blob(nbytes=m.dtype.bytes)
-            ops[rhs.dtype.name].sum_t(rhs.storage, res)
-            return res
+            ops[self.op_dtype.name].sum_t(rhs.storage, res)
+            return res, ()
 
             #TODO: Implement sum allong dim with strides
         elif dim == 0:
@@ -186,8 +193,8 @@ class Mul(Operation):
     def forward(self): 
         rhs, lhs = self.operands
         res = Blob(nbytes=rhs.storage.nbytes)
-        ops[rhs.dtype.name].mul_t(rhs.storage, lhs.storage, res)
-        return res
+        ops[self.op_dtype.name].mul_t(rhs.storage, lhs.storage, res)
+        return res, rhs.shape
     
     def gradient(self, w_r_t): 
         #Here we can save mem by just sending a ref to the other tensor its self
@@ -230,8 +237,8 @@ class Relu(Operation):
     def forward(self):
         m = self.operands[0]
         res = Blob.empty(*m.shape, dtype=int32)
-        # lib.relu_int(m._data.ptr, res._data.ptr, res._data.size)
-        return res
+        
+        return res, 
     
     def gradient(self):
         m = self.operands[0]
@@ -246,11 +253,33 @@ class Matmul(Operation):
         super().__init__("MMul", "MBinary", *args)
         
     def forward(self):
-        m1, m2 = self.operands
-        numel = prod((m1.shape[0], m2.shape[1]))
-        res = Blob(numel=numel, dtype=int32)
-        lib.matmul_int(m1.shape[0], m1.shape[1], m2.shape[1], m1._ptr(), m2.ptr(), res._ptr())
-        return res
+        t0, t1 = self.operands
+        dim0, dim1 = t0.dim(), t1.dim()
+
+        #handle broadcasting to th right dimention
+        brdcst_shape0 = t0.shape
+        brdcst_shape1 = t0.shape
+        if not dim0 :
+            brdcst_shape0 = (1, 1)
+        if not dim1:
+            brdcst_shape1 = (1, 1)
+        
+        if dim0 == 1:
+            brdcst_shape0 = (1, brdcst_shape0)
+        if dim1 == 1:
+            brdcst_shape1 = (1, brdcst_shape1)
+
+
+        bordcast_shape = get_broadcast_shape(brdcst_shape0, brdcst_shape0)
+        
+        print(brdcst_shape0, brdcst_shape1)
+            #broadcasting needed
+        t0_b = t0.broadcast_to(brdcst_shape0)
+        t1_b = t0.broadcast_to(brdcst_shape1)
+        res_shape = ()
+        res = Blob(nbytes=math.prod(res_shape)*self.op_dtype.bytes,  zero_init=True)
+        ops[self.op_dtype.name].matmul(m1.storage, m2.storage, m1.stride(), m1.stride())
+        return res, res_shape
 
 
     def gradient(self, w_r_t, upstream_m): 
@@ -270,7 +299,19 @@ class ViewOp(Operation):
     def forward(self):
         t, shape = self.operands
         assert t.shape == shape , f"Invalid input size"
-        return shape
+        return t.storage, shape
+
+    def gradient(self):
+        return 
+
+class ViewOp(Operation):
+    def __init__(self, *args):
+        super().__init__("Broadcast", "View", *args)
+    
+    def forward(self):
+        t, shape = self.operands
+        assert t.shape == shape , f"Invalid input size"
+        return t.storage, shape
 
     def gradient(self):
         return 

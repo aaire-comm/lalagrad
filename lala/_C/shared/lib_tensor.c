@@ -18,3 +18,6 @@
 #include "../kernels/__sum_float.c"
 #include "../kernels/__fill_float.c"
 #include "../kernels/__add_float.c"
+
+
+#include "../kernels/__transpose.c"

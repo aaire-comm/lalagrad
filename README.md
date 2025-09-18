@@ -1,4 +1,4 @@
-<img style="float: left" src=./lala/utils/img/lala.png alt=drawing width=200/>
+<img style="float: left" src=./utils/img/lala.png alt=drawing width=200/>
 <b><h1>lalagrad</h1></b> lalagrad is a mid-level Deep learning framework currently under development<br> 
 
 <b>[In Progress]</b>

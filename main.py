@@ -66,3 +66,15 @@ for k in range(batch_len) :
 att_blk.bach_train(batch_training_data)
 
 """
+
+l = lala.fill(2, 1, 3, value=3.0, requires_grad=True)
+
+l2 = l.broadcast_to(2, 5, 3)
+
+print(l2.shape, l2.stride( ))
+
+
+
+print(l2.tolist())
+
+

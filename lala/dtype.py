@@ -12,7 +12,7 @@ class Dtype:
     def __init__(self, name: str, bytes: int, base: str, python_eq,  strength=0):
         self.name = name
         self.bytes = bytes
-        self.base = base
+        self.base = base #the C/C++ equivalent
         self.ptr_t = base + "*"
         self.strength = strength
         self.python_eq = python_eq

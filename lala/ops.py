@@ -16,17 +16,24 @@ class Operation:
         from .tensor import  Tensor
         self.name = name
         self.op_type = type_
-        self.operands = args
+        self.op_dtype = max(operand.dtype if isinstance(operand, Tensor) else Null for operand in args)
+        
+        #cast every operand to the highes level operand
+        casted_operands = []
         for operand in args:
             if isinstance(operand, Tensor):
                 operand.grad_fn = self
+                if operand.dtype is not self.op_dtype:
+                    casted_operands.append(operand.to(self.op_dtype))
+                else:
+                    casted_operands.append(operand)
+            else:
+                casted_operands.append(operand)
+            
+        self.operands = tuple(casted_operands)
+
                 
-        #we need to know the operation dtype
-        self.op_dtype = max(operand.dtype if isinstance(operand, Tensor) else Null for operand in self.operands)
-        #cast all tensors to the higher dtype
-        for operand in self.operands:
-            if isinstance(operand, Tensor) and operand.dtype is not self.op_dtype:
-                operand = operand.to(self.op_dtype)
+        
                 
         self.requires_grad =  any(operand.requires_grad if isinstance(operand, Tensor) else False for operand in self.operands)
         
@@ -67,7 +74,6 @@ class Operation:
             if isinstance(operand, Tensor) and operand.requires_grad:
                 if self.op_type == "Binary":
                     grad_b =   self.gradient(operand)
-                    print(grad_b)
                 elif self.op_type == "View":
                     grad_b =   self.gradient(upstream_m)
                 elif self.op_type == "Unary" or self.op_type == "SReduce":
@@ -76,7 +82,6 @@ class Operation:
                     grad_b =   self.gradient(operand, upstream_m)
 
                 grad = Tensor(*operand.shape, data=grad_b)
-                print(grad)
 
                 # if upstream_m is not None and self.op_type != "View" and self.name != "MMul":
                 #     grad *= upstream_m
@@ -140,7 +145,7 @@ class Add(Operation):
 
     def gradient(self, w_r_t): 
         assert w_r_t in self.operands, "w_r_t is not an operand of this grad_fn"
-        grad_b = Blob(nbytes=w_r_t.storage.nbytes, fill=1)
+        grad_b = Blob(nbytes=w_r_t.storage.nbytes, fill=1.0)
         return  grad_b
     
 
@@ -304,18 +309,22 @@ class ViewOp(Operation):
     def gradient(self):
         return 
 
-class ViewOp(Operation):
+class BroadCast(Operation):
     def __init__(self, *args):
         super().__init__("Broadcast", "View", *args)
-    
+
     def forward(self):
         t, shape = self.operands
-        assert t.shape == shape , f"Invalid input size"
-        return t.storage, shape
+        new_dims = len(shape) - len(t.shape)
+        assert new_dims >= 0, "can't broadcast to a smaller dim shape"
+        assert shape != t.shape, "can't broadcast to old shape"
+        assert all(shape[new_dims+i] == t.shape[i] or t.shape[i]==1  for i in range(t.dim())), "new shape can ony replace size 1 dims from existing dims"
 
-    def gradient(self):
-        return 
+        new_shape = shape
+        
+        new = t.clone()
 
+        return new.storage, new_shape
 
 
 #this does casting to a dtype

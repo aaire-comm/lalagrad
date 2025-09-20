@@ -40,7 +40,7 @@ class Blob:
         return self._get_pointer(dtype)[offset]
 
     def _copy(self, other):
-        libc.memcpy(self._get_pointer(), other._get_pointer(), self.nbytes)
+        libc.memcpy(other._get_pointer(), self._get_pointer(), self.nbytes)
         return True
 
 

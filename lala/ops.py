@@ -1,5 +1,6 @@
 from .utils import *
-from .dtype import int32, Null
+from .dtype import int32, Null, Dtype
+
 from .blob import Blob
 from ._C import ops
 import math
@@ -22,6 +23,11 @@ class Operation:
                 
         #we need to know the operation dtype
         self.op_dtype = max(operand.dtype if isinstance(operand, Tensor) else Null for operand in self.operands)
+        #cast all tensors to the higher dtype
+        for operand in self.operands:
+            if isinstance(operand, Tensor) and operand.dtype is not self.op_dtype:
+                operand = operand.to(self.op_dtype)
+                
         self.requires_grad =  any(operand.requires_grad if isinstance(operand, Tensor) else False for operand in self.operands)
         
 
@@ -270,15 +276,9 @@ class Matmul(Operation):
             brdcst_shape1 = (1, brdcst_shape1)
 
 
-        bordcast_shape = get_broadcast_shape(brdcst_shape0, brdcst_shape0)
-        
-        print(brdcst_shape0, brdcst_shape1)
-            #broadcasting needed
-        t0_b = t0.broadcast_to(brdcst_shape0)
-        t1_b = t0.broadcast_to(brdcst_shape1)
-        res_shape = ()
+        res_shape = (1, 1)
         res = Blob(nbytes=math.prod(res_shape)*self.op_dtype.bytes,  zero_init=True)
-        ops[self.op_dtype.name].matmul(m1.storage, m2.storage, m1.stride(), m1.stride())
+        ops[self.op_dtype.name].matmul(t0.storage, t1.storage, t0.stride(), t1.stride() )
         return res, res_shape
 
 
@@ -315,4 +315,16 @@ class ViewOp(Operation):
 
     def gradient(self):
         return 
+
+
+
+#this does casting to a dtype
+#for now that is just to float32
+#doesn't support backward
+class CastOp:
+    @staticmethod
+    def forward(lhs, res, dtype: Dtype):
+        ops[dtype.name].cast(lhs.storage, res.storage, lhs.numel())
+
+
 

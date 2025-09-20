@@ -66,14 +66,3 @@ for k in range(batch_len) :
 att_blk.bach_train(batch_training_data)
 
 """
-
-
-l = lala.empty(300, 300, requires_grad=True)
-l2 = lala.empty(2, 300, 400)
-
-
-l3 = l @ l2
-print(l3.src.operands)
-print(l3.src.operands[0] is l3.src.operands[1])
-l3.mean().visualize()
-

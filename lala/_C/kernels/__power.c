@@ -1,4 +1,6 @@
-void sub_scalar_int(int* rhs, int scalar, int* res, int size){
+//element-wise power kernels
+
+void power_float(float *rhs, float* lhs, float* res, int size){
     #pragma omp parallel
     {
         int nthreads = omp_get_num_threads();
@@ -11,14 +13,18 @@ void sub_scalar_int(int* rhs, int scalar, int* res, int size){
         if (end > size){
             end = size;
         }
+        for (int i = start; i < end; i++) {
+            res[i] = pow(rhs[i], lhs[i]);
 
-        for (int i = start; i < end; ++i) {
-            res[i] = rhs[i] - scalar;
         }
+        
+
     }
 }
 
-void sub_scalar_float(float* rhs, float scalar, float* res, int size){
+
+
+void power_int(int *rhs, int* lhs, int* res, int size){
     #pragma omp parallel
     {
         int nthreads = omp_get_num_threads();
@@ -31,9 +37,11 @@ void sub_scalar_float(float* rhs, float scalar, float* res, int size){
         if (end > size){
             end = size;
         }
-
-        for (int i = start; i < end; ++i) {
-            res[i] = rhs[i] - scalar;
+        for (int i = start; i < end; i++) {
+            res[i] = pow(rhs[i], lhs[i]);
         }
+        
+
     }
 }
+

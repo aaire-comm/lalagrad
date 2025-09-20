@@ -1,6 +1,8 @@
-void fill_float(float* blk, float value, int size){
- 
-    #pragma omp parallel
+//REMEMBER in c casting to float is not just reinterpreting the int bits as floats
+//we instead need to convert the c int values to IEEE 754 single-precision float format for the corresponding int value
+
+void cast_int_float(int* lhs, float* res, int size){
+     #pragma omp parallel
     {
         int nthreads = omp_get_num_threads();
         int tid = omp_get_thread_num();
@@ -14,7 +16,7 @@ void fill_float(float* blk, float value, int size){
         }
 
         for (int i = start; i < end; ++i) {
-            blk[i] =  value;
+            res[i] = (float)lhs[i];
         }
-    }   
+    }
 }

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 from .utils import _to_python_list
 import ctypes
 from lala.dtype import Dtype, float32, char
@@ -6,8 +6,8 @@ from lala._C import ffi, lib as libc
 
 
 class Blob:
-    def __init__(self, nbytes: int, ptr: Optional[ctypes.POINTER]=None, fill=None, zero_init=False):
-        assert nbytes is not None or ptr is not None, "Blob requires nbytes or ptr"
+    def __init__(self, nbytes: int, ptr: Optional[ctypes.POINTER]=None, fill: Optional[Union[int, float]]=None, zero_init=False):
+        assert nbytes is not None, "Blob requires nbytes"
         self.nbytes = nbytes
         self.zero_init = zero_init
 
@@ -16,18 +16,18 @@ class Blob:
         if zero_init:
             libc.memset(self.__ptr, 0, self.nbytes)
         elif fill is not None:
-            libc.memset(self.__ptr, fill, self.nbytes)
+            if isinstance(fill, float):
+                libc.fill_float(self.__ptr, fill, int(nbytes/4))
+            elif isinstance(fill, int):
+                libc.fill_int(self.__ptr, fill, int(nbytes/4))
+
 
     def __repr__(self):
         return f"Blob({self._get_pointer("void*")} <nbytes={self.nbytes}>)"
-    def _get_pointer(self, dtype: str):
+    def _get_pointer(self, dtype: Optional[str]=None):
         if dtype is None:
             return self.__ptr
         return ffi.cast(dtype, self.__ptr)
-    
-    def copy(self, other: "Blob"):
-        size = min(self.nbytes, other.nbytes)
-        libc.memcpy(self._get_pointer(), other._get_pointer(), size)
     
     def _release(self):
         libc.free(self._get_pointer(float32))
@@ -40,5 +40,7 @@ class Blob:
         return self._get_pointer(dtype)[offset]
 
     def _copy(self, other):
-        libc.memcpy(self._get_pointer(float32), other._get_pointer(float32), self.nbytes)
+        libc.memcpy(self._get_pointer(), other._get_pointer(), self.nbytes)
         return True
+
+

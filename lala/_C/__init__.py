@@ -45,6 +45,9 @@ class Int32Ops:
     def sum_t(t: Blob, res: Blob):
         lib.sum_int(t._get_pointer("int*"), res._get_pointer("int*"), int(t.nbytes/4))
     
+    def mean_t(t: Blob, res: Blob):
+        lib.mean_int(t._get_pointer("float*"), res._get_pointer("float*"), int(t.nbytes/4))
+
     @staticmethod
     def fill(t: Blob, value):
         lib.fill_float(t._get_pointer("int*"), value)
@@ -57,7 +60,7 @@ class Int32Ops:
 
 
 
-class Float32ops:
+class Float32Ops:
 
     @staticmethod
     def add_t(rhs: Blob, lhs: Blob, res: Blob):
@@ -65,7 +68,7 @@ class Float32ops:
 
     @staticmethod
     def mean_t(t: Blob, res: Blob):
-        lib.mean_(t._get_pointer("float*"), res._get_pointer("float*"), int(t.nbytes/4))
+        lib.mean_float(t._get_pointer("float*"), res._get_pointer("float*"), int(t.nbytes/4))
 
     @staticmethod
     def sum_t(t: Blob, res: Blob):
@@ -84,10 +87,12 @@ class Float32ops:
         s = ffi.new(f"int[{len(strides)}]", strides)
         lib.transpose_float(t._get_pointer("float*"), dim0, dim1, s, int(t.nbytes/4))
 
+    def cast(t: Blob, t1: Blob, size: int):
+        lib.cast_int_float(t._get_pointer("int*"), t1._get_pointer("float*"), int(t.nbytes/4))
 
 
     
 ops = {
     "int32": Int32Ops,
-    "float32": Float32ops
+    "float32": Float32Ops
 }

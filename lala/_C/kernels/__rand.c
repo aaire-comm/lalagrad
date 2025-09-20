@@ -1,6 +1,10 @@
+//Uses libc random number generator function 
+//libc is included in lib_tensor.c
+
 #ifndef RAND_MAX
 RAND_MAX = 10000;
 #endif
+
 
 void rand_int(int* blk, int seed, int size){
  
@@ -46,6 +50,8 @@ void rand_int_in_range(int* blk, int seed, int bottom, int top, int size){
     } 
 }
 
+
+//this is a kernel for random float in 0 - 1 range
 void rand_(float* blk, int seed, int size){
     #pragma omp parallel
     {

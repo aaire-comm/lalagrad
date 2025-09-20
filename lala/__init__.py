@@ -15,3 +15,6 @@ def ones(*args, dtype=float32, requires_grad=False):
 def zeros_like(*args, dtype=float32, requires_grad=False):
     return Tensor.zeros_like(*args, dtype=dtype, requires_grad=requires_grad)
 
+
+def fill(*args, value,  dtype=None, requires_grad=False):
+    return Tensor.fill(*args, value=value, dtype=dtype, requires_grad=requires_grad)

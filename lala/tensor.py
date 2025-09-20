@@ -12,7 +12,6 @@ from .ops import *
 from .blob import Blob
 import numpy as np
 from .dtype import Dtype
-from lala._C import ffi
 from lala.dtype import float32
 
 def isTensor(obj): return isinstance(obj, Tensor)
@@ -87,8 +86,11 @@ class Tensor:
         return cls(*args, data=blob, dtype=dtype, requires_grad=requires_grad)
     
     @classmethod
-    def fill(cls, *args, value, dtype=float32, requires_grad=False):
-        blob = Blob(dtype=dtype, nbytes=math.prod(args))
+    def fill(cls, *args, value, dtype=None, requires_grad=False):
+        if dtype is None:
+            if isinstance(value, int): dtype = int32
+            elif isinstance(value, float): dtype = float32
+        blob = Blob(nbytes=math.prod(args)*dtype.bytes, fill=value)
         return cls(*args, data=blob, dtype=dtype, requires_grad=requires_grad)
     
     @classmethod
@@ -132,7 +134,7 @@ class Tensor:
 
     def clone(self):
         clone_ = Tensor.empty(*self.shape, dtype=self.dtype, requires_grad=self.requires_grad)
-        self.storage._clone(clone_.storage)
+        self.storage._copy(clone_.storage)
         return clone_
 
     def __repr__(self):
@@ -143,22 +145,21 @@ class Tensor:
     
     def view(self, *args): 
         if len(args):
-            return ViewOp(self, View(args))()
+            return ViewOp(self, args)()
         return ViewOp(self, self.shape)()  
         
-    
-    def to_(self, dtype: Dtype):
-        assert self.storage.nbytes / dtype.bytes >= self.numel(), "the dtype provided won't feet in the storage"
-        self.dtype = dtype
-
         
-    def to(self, dtype: Dtype):
-        new  = self.clone()
-        new.to_(dtype)
+    def to(self, dtype: Dtype): 
+        new = self.clone()
+        if self.dtype is not dtype:
+            CastOp.forward(self, new, dtype)
+            new.dtype = dtype
         return new
+        
     
     def clone(self):
         new_b = Blob(self.storage.nbytes)
+        self.storage._copy(new_b)
         return Tensor(*self.shape, data=new_b, dtype=self.dtype, label=str(self.label)+"-copy", requires_grad=self.requires_grad)
 
     def __getitem__(self, slices):

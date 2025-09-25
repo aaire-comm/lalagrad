@@ -28,6 +28,14 @@ class Tensor:
                 del arr #free the memory held by numpy object (NOT the buffer just the PyObject)
                 blob = Blob(ptr=ptr, nbytes=nbytes)
 
+            #from numpy ndarray
+            if isinstance(data, np.ndarray):
+                shape = data.shape
+                nbytes = data.size * dtype.bytes
+                ptr = data.ctypes.data
+                blob = Blob(ptr=ptr, nbytes=nbytes)
+                del data
+
             #you can also just pass a Storage Blob and build a tensor on top
             #it doesn't copy so any change to this the tensor changes the storage 
             #ultimately chaging the data of any other tensor base on that passed blob

@@ -67,50 +67,54 @@ att_blk.bach_train(batch_training_data)
 
 """
 
-l = lala.zeros(3, 3,  requires_grad=True)
-l2 = lala.fill(3, 3, value=23.0)
-
-b = lala.zeros(3, 3, requires_grad=True)
-target = l2.clone()
-
-
-#pred
-logits = l * l2 + b
-
-loss = (logits - target).spow(2).mean()
-
-
-print(loss.tolist())
-loss.backward()
-print(l.grad.tolist())
-
-loss.visualize()
-
-import torch
 
 
 
-l = torch.zeros(3, 3,  requires_grad=True)
-l2 = torch.tensor(data=l2.tolist())
+class MLP:
+    def __init__(self, input_features: int, layers: List[int], output_features: int):
+        self.layers = [(lala.zeros(input_features, layers[0], requires_grad=True), lala.zeros(input_features, layers[0], requires_grad=True))]
+        for i in range(1, len(layers)):
+            self.layers.append((lala.zeros(layers[i-1], layers[i], requires_grad=True), lala.zeros(layers[i], requires_grad=True)))
+        
+        print("MLP Layers")
+        print(self.layers)
 
-b = torch.zeros(3, 3, requires_grad=True)
-target = l2.clone()
+    def forward(self, x: lala.Tensor):
+        for w, b in self.layers:
+            x = x @ w + b
+        return x
+
+    def train(self, batch_data: List[Tuple[lala.Tensor, lala.Tensor]]):
+        for input_, target in batch_data:
+            logits = self.forward(input_)
+            loss = (logits - target).spow(2).mean()
+            print(loss.get_item())
+            loss.backward()
+
+        loss.visualize()
 
 
-#pred
-logits = l * l2 + b
 
-loss = ((logits - target) ** 2).mean()
-loss.backward()
-print(loss)
-print(l.grad)
+input_features = 100
+output_features = 10
+layers = [8, 8]
 
-l = torch.tensor(l - l.grad, requires_grad=True)
-b = torch.tensor(b - b.grad, requires_grad=True)
+mlp = MLP(100, layers, 10)
 
-logits = l * l2 + b
+import numpy as np
 
-loss = ((logits - target) ** 2).mean()
+data = []
+batch_len = 10
+for i in range(batch_len):
+    input_ = lala.tensor(data=np.random.rand(1,input_features))
+    print(input_.shape)
+    target = input_.smul(2)
+    data.append((input_, target))
 
-print(loss)
-print(l.grad)
+
+
+layer = mlp.layers[0][0]
+mlp.train(data)
+print(layer.transpose(0, 1).tolist(),layer.transpose(0, 1))
+
+print(layer.tolist(), layer)

@@ -6,6 +6,8 @@ from typing import Tuple
 
 class Blob: ...
 
+#TODO: We want to change this to a much faster
+
 
 class Int32Ops: 
     
@@ -79,8 +81,8 @@ class Float32Ops:
         lib.fill_float(t._get_pointer("float*"), value, int(t.nbytes/4))
     
     @staticmethod
-    def matmul(t1: Blob, t2: Blob, s1: Tuple[int], s2: Tuple[int]):
-        lib.matmul_float(t1._get_pointer("float*"), t2._get_pointer("float*"), s1, s2)
+    def matmul(t1: Blob, t2: Blob, ret: Blob, lhs_rows: int, lhs_cols: int, rhs_rows: int):
+        lib.matmul_float(lhs_rows, lhs_cols, rhs_rows, t1._get_pointer("float*"), t2._get_pointer("float*"), ret._get_pointer("float*"))
 
     @staticmethod
     def transpose(t: Blob, dim0: int, dim1: int, strides: Tuple[int]):

@@ -177,9 +177,11 @@ class ScalarMul(UnOps):
         super().__init__("SMul", *args)
 
     def forward(self): 
-        m, p = self.operands
-        res_b = Blob(m.storage.nbytes)
-        return res_b
+        lhs, s = self.operands
+        res_b = Blob(lhs.storage.nbytes)
+        ops[self.op_dtype.name].mul_s(lhs.storage, s,  res_b)
+
+        return res_b, lhs.shape
         
     def gradient(self): 
         w_r_t, scalar = self.operands
@@ -297,16 +299,17 @@ class Relu(Operation):
         
 class Transpose(ViewOps):
     """exchanges the elements of two dims"""
-    def __init__(self, dims: Tuple[int]): 
-        super().__init__("Transpose", dims)
+    def __init__(self, lhs, dim0: int, dim1: int): 
+        super().__init__("Transpose", lhs, (dim0, dim1))
 
     def forward(self): 
         m, dims = self.operands
-        new_shape = m.shape
+        new_shape = list(m.shape)
+
         a = new_shape[dims[0]]
         new_shape[dims[0]] = new_shape[dims[1]]
         new_shape[dims[1]] = a
-        return m.storage, new_shape
+        return m.storage, tuple(new_shape)
     
     def gradient(self, upstream_m):
         dims = self.operands[1]
@@ -368,35 +371,30 @@ class Matmul(Operation):
         super().__init__("MMul", "MBinary", *args)
         
     def forward(self):
-        t0, t1 = self.operands
-        dim0, dim1 = t0.dim(), t1.dim()
-
-        #handle broadcasting to th right dimention
-        brdcst_shape0 = t0.shape
-        brdcst_shape1 = t0.shape
-        if not dim0 :
-            brdcst_shape0 = (1, 1)
-        if not dim1:
-            brdcst_shape1 = (1, 1)
-        
-        if dim0 == 1:
-            brdcst_shape0 = (1, brdcst_shape0)
-        if dim1 == 1:
-            brdcst_shape1 = (1, brdcst_shape1)
+        lhs, rhs = self.operands
+        #Number of cols of lhs == Number of rows of rhs
+        assert lhs.shape[1] == rhs.shape[0] 
 
 
-        res_shape = (1, 1)
+        res_shape = (lhs.shape[0], rhs.shape[1])
         res = Blob(nbytes=math.prod(res_shape)*self.op_dtype.bytes,  zero_init=True)
-        ops[self.op_dtype.name].matmul(t0.storage, t1.storage, t0.stride(), t1.stride() )
+        ops[self.op_dtype.name].matmul(lhs.storage, rhs.storage, res, *lhs.shape, rhs.shape[1])
         return res, res_shape
 
 
     def gradient(self, w_r_t, upstream_m): 
         lhs, rhs = self.operands
-        
+        print(upstream_m.tolist())
         if w_r_t is lhs:
-            lgrad = Blob(Matmul._matmul(upstream_m.data, rhs.transpose().data))
-            return lgrad.data
+            rhs_t = rhs.transpose(0, 1)
+            lgrad_b = Blob(upstream_m.shape[0]*rhs_t.shape[1]*self.op_dtype.bytes)
+            ops[self.op_dtype.name].matmul(upstream_m.storage, rhs_t.storage, lgrad_b, *upstream_m.shape, rhs_t.shape[1])
+
+            return lgrad_b
         else:
-            rgrad = Blob(Matmul._matmul(lhs.transpose().data, upstream_m.data))
-            return rgrad.data
+
+            lhs_t = lhs.transpose(0, 1)
+            rgrad_b = Blob(lhs_t.shape[0]*upstream_m.shape[1]*self.op_dtype.bytes)
+            ops[self.op_dtype.name].matmul(lhs_t.storage, upstream_m.storage,  rgrad_b, *lhs_t.shape, upstream_m.shape[1])
+
+            return rgrad_b

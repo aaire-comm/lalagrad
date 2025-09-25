@@ -1,0 +1,2 @@
+1. transpose fix (actually transpose the data. currently doing just a view)
+2. expand the ops to any shape with broadcasting

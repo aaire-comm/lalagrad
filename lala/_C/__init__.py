@@ -90,8 +90,22 @@ class Float32Ops:
     def cast(t: Blob, t1: Blob, size: int):
         lib.cast_int_float(t._get_pointer("int*"), t1._get_pointer("float*"), int(t.nbytes/4))
 
+    @staticmethod
+    def mul_t(rhs: Blob, lhs: Blob, res: Blob):
+        lib.mul_float(rhs._get_pointer("float*"), lhs._get_pointer("float*"), res._get_pointer("float*"), int(rhs.nbytes/4))
 
+    @staticmethod
+    def mul_s(rhs: Blob, s: Blob, res: Blob):
+        lib.mul_scalar_float(rhs._get_pointer("float*"), s, res._get_pointer("float*"), int(rhs.nbytes/4))
+
+    @staticmethod
+    def sub_t(lhs: Blob, rhs: Blob, res: Blob):
+        lib.sub_float(lhs._get_pointer("float*"), rhs._get_pointer("float*"), res._get_pointer("float*"), int(lhs.nbytes/4))
     
+    @staticmethod
+    def exp(lhs: Blob, exp: float, res: Blob):
+        lib.power_scalar_float(lhs._get_pointer("float*"), exp, res._get_pointer("float*"), int(lhs.nbytes/4))
+
 ops = {
     "int32": Int32Ops,
     "float32": Float32Ops

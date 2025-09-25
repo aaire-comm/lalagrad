@@ -1,5 +1,14 @@
+
+"""
+Operation types:
+    Unary -> take a Tensor return Tensor of the same shape
+    Binary -> take two Tensors and return a Tensor
+    SReduce (Scalar reduce) take a Tensor and return single element Tensor (implicit autograd allowed)
+"""
+
 from .utils import *
 from .dtype import int32, Null, Dtype
+from typing import Tuple
 
 from .blob import Blob
 from ._C import ops
@@ -9,6 +18,9 @@ def _transpose(data):
     return [[row[i] for row in data] for i in range(len(data[0]))]
 
 def _dot(v1, v2): return sum([a * b for a, b in zip(v1, v2)])
+
+#TODO: Break operations into multile
+
 
 
 class Operation:
@@ -21,42 +33,24 @@ class Operation:
         #cast every operand to the highes level operand
         casted_operands = []
         for operand in args:
-            if isinstance(operand, Tensor):
-                operand.grad_fn = self
-                if operand.dtype is not self.op_dtype:
-                    casted_operands.append(operand.to(self.op_dtype))
-                else:
-                    casted_operands.append(operand)
-            else:
-                casted_operands.append(operand)
-            
-        self.operands = tuple(casted_operands)
+            casted_v = operand.to(self.op_dtype) if isinstance(operand, Tensor) and operand.dtype is not self.op_dtype else operand
+            casted_operands.append(casted_v)
 
-                
-        
-                
+        self.operands = tuple(casted_operands)
         self.requires_grad =  any(operand.requires_grad if isinstance(operand, Tensor) else False for operand in self.operands)
         
 
 
-    @classmethod
-    def elem_wise_validate(cls, fn):
-        shape = fn.operands[0].shape
-        return all(shape == op.shape for op in fn.operands), f"Incompatable shape for Operation {fn.name}"
 
-
-    def validate(self):
-        return True, ""
     
     def detach(self, operand):
-        from .tensor import Tensor
         assert operand in self.operands, f"operand not attached to {self}"
-        self.operands = (t if t is not operand else Tensor.dummy() for t in self.operands)
+        operands = list(self.operands)
+        operands.remove(operand)
+        self.operands =tuple(operands)
 
     def __call__(self): 
         from lala.tensor import Tensor
-        assertion, msg = self.validate()
-        assert assertion, msg
 
         data, shape = self.forward()
 
@@ -72,37 +66,84 @@ class Operation:
         from lala.tensor import Tensor
         for operand in self.operands:
             if isinstance(operand, Tensor) and operand.requires_grad:
-                if self.op_type == "Binary":
+                if self.op_type == "BinaryOp":
                     grad_b =   self.gradient(operand)
-                elif self.op_type == "View":
+                elif self.op_type == "ViewOp":
                     grad_b =   self.gradient(upstream_m)
-                elif self.op_type == "Unary" or self.op_type == "SReduce":
+                elif self.op_type == "UnOp" or self.op_type == "ReduceOp":
                     grad_b =   self.gradient()
                 else:
                     grad_b =   self.gradient(operand, upstream_m)
 
                 grad = Tensor(*operand.shape, data=grad_b)
+                #Remember VewOps don't participate in the chan rule. They just do a reverse op on the upstream and pass it up
+                if upstream_m is not None and self.op_type != "ViewOp" and self.name != "MMul":
+                    grad *= upstream_m
 
-                # if upstream_m is not None and self.op_type != "View" and self.name != "MMul":
-                #     grad *= upstream_m
-
+                #Set the grad or accumulate if the tensor already has a grad 
                 if operand.grad is None:
                     operand.grad = grad
                 else: 
                     operand.grad += grad
 
-                operand.grad.requires_grad = None
-                operand.grad.grad_fun = None
-
+                #continue up the autodiffer chain
                 operand.backward(operand.grad)
 
 
-class Mean(Operation):
-    def __init__(self, *args): super().__init__("MEAN", "SReduce", *args)
+"""
+We break down ops into these 5 ops so we can optimize the forward, broadcasting and backward optimized accordingly ...
+
+"""
+
+class UnOps(Operation): 
+    """
+    These are operantions on a tensor that take a tensor and do the same op 
+    (function) on every element
+    ex. smul. spow, sadd, ssub
+    like ops with other types in python int, bool. float
+    """
+    def __init__(self, name, lhs, other): 
+        super().__init__(name, "UnOp", lhs, other)
+
+
+class BinaryOps(Operation): 
+    """
+    These are Ops that take two tensors and return a tensor of the same shape
+    ex. +, -, ** and most other ops
+
+    """
+    def __init__(self, name, *args): 
+        super().__init__(name, "BinaryOp", *args)
+
+
+class ReduceOps(Operation):
+    def __init__(self, name, *args): super().__init__(name, "ReduceOp", *args)
+
+    """
+    There are ops that return a tensor of smaller shape
+    ex. mean(<dim>), sum(<dim>), along some dim
+    """
+
+class ViewOps(Operation): 
+    """
+    These are just different ways of looking at the storage(memory)
+    ex. transpose, view, expand...
+    The gradient of ViewOps is just the reverse if the changes
+    """, 
+    def __init__(self, name, t, new_shape): super().__init__(name, "ViewOp", t, new_shape)
+
+
+#=======================================here are all the ops supported by  lalagrad=============================
+
+
+class Mean(ReduceOps):
+    def __init__(self, tensor, dim): 
+        super().__init__("MEAN", tensor, dim)
 
     def forward(self):
-        m, _ = self.operands
+        m, dim = self.operands
         res = Blob(m.dtype.bytes)
+        #TODO: Make the mean kernel take a dimension
         ops[self.op_dtype.name].mean_t(m.storage, res)
         return res, ()
     
@@ -111,31 +152,44 @@ class Mean(Operation):
         grad_b = Blob(nbytes=m.storage.nbytes, fill=1/m.numel())
         return grad_b
         
-        
-class Transpose(Operation):
+   
+
+class ScalarPower(UnOps):
     def __init__(self, *args): 
-        super().__init__("Transpose", "View", *args)
+        super().__init__("ElPow", *args)
 
     def forward(self): 
-        m, dims = self.operands
-        new_shape = m.shape
-        a = new_shape[dims[0]]
-        new_shape[dims[0]] = new_shape[dims[1]]
-        new_shape[dims[1]] = a
-        return m.storage, new_shape
-    
-    def gradient(self, upstream_m):
-        dims = self.operands[1]
-        return upstream_m.transpose(dims[1], dims[0])
+        lhs, exp = self.operands
+        res = Blob(nbytes=lhs.storage.nbytes)
+        ops[self.op_dtype.name].exp(lhs.storage, exp, res)
+        return res, lhs.shape
         
+    def gradient(self): 
+        lhs, exp = self.operands
+        grad_b = Blob(nbytes=lhs.storage.nbytes)
+        ops[self.op_dtype.name].mul_s(lhs.storage, exp, grad_b)
+        return grad_b
+
     
-class Add(Operation):
-    def __init__(self, *args):
-        super().__init__("Add", "Binary", *args)
+
+class ScalarMul(UnOps):
+    def __init__(self, *args): 
+        super().__init__("SMul", *args)
+
+    def forward(self): 
+        m, p = self.operands
+        res_b = Blob(m.storage.nbytes)
+        return res_b
+        
+    def gradient(self): 
+        w_r_t, scalar = self.operands
+        grad_b = Blob(nbytes=w_r_t.storage.nbytes, fill=scalar)
+        return grad_b
+
     
-    def validate(self):
-        a, b = self.operands
-        return a.shape == b.shape, f"Blobs for different shape for {self.name}"
+class Add(BinaryOps):
+    def __init__(self, lhs, rhs):
+        super().__init__("Add", lhs, rhs)
     
     def forward(self):
         rhs, lhs = self.operands
@@ -149,13 +203,12 @@ class Add(Operation):
         return  grad_b
     
 
-class Sub(Operation):
+
+
+class Sub(BinaryOps):
     def __init__(self, *args):
-        super().__init__("Sub", "Binary", *args)
+        super().__init__("Sub", *args)
     
-    def validate(self): 
-        return Operation.elem_wise_validate(self)
-        
     def forward(self):
         rhs, lhs = self.operands
         res = Blob(nbytes=rhs.storage.nbytes)
@@ -165,41 +218,49 @@ class Sub(Operation):
 
     def gradient(self, w_r_t): 
         assert w_r_t in self.operands, "w_r_t is not an operand of this grad_fn"
-        a, b = self.operands
-        if w_r_t is a:
-            return  [[1 for _ in row] for row in w_r_t.data]
+        lhs, _ = self.operands
+        if w_r_t is lhs:
+            fill_v = 1.0
         else:
-            return  [[-1 for _ in row] for row in w_r_t.data]
+            fill_v = -1.0
+        return Blob(lhs.storage._get_size(), fill=fill_v)
             
 
-class Sum(Operation):
-    def __init__(self, *args): 
-        super().__init__("Sum", "SReduce" if args[1] is None else "Unary", *args)
+
+class Sum(ReduceOps):
+    """
+    Sum elements of a tensor along a dim
+    The gradient is just 1s of the same shape
+    """
+    def __init__(self, tensor, dim=None): 
+        super().__init__("Sum", tensor, dim)
         
 
     def forward(self, dim=None): 
         m, dim = self.operands
+        #TODO: remove the condition and write a generic kernel that handles this
         if dim is None:
             rhs, _ = self.operands
             res = Blob(nbytes=m.dtype.bytes)
             ops[self.op_dtype.name].sum_t(rhs.storage, res)
             return res, ()
-
             #TODO: Implement sum allong dim with strides
-        elif dim == 0:
-            _t = m.transpose()
-            return _transpose([[sum(row)]for row in _t.data])
-        else:
-            return _transpose([[sum(row)]for row in m.data])
+        else: 
+            raise NotImplementedError("Sum along a dim not Implemented yet")
     
     def gradient(self):
-        rows, cols =  self.operands[0].shape
-        return [[1 for _ in range(cols)] for __ in range(rows)]
+        lhs, dim = self.operands
+        grad_b = Blob(lhs.storage._get_size(), fill=1.0)
+        return grad_b
 
         
 
-class Mul(Operation):
-    def __init__(self, *args): super().__init__("ElMul", "Binary", *args)
+class Mul(BinaryOps):
+    """
+    Does element-wise multiplication
+    backward with respect to one of the operands is the other
+    """
+    def __init__(self, *args): super().__init__("ElMul", *args)
 
     def forward(self): 
         rhs, lhs = self.operands
@@ -208,7 +269,6 @@ class Mul(Operation):
         return res, rhs.shape
     
     def gradient(self, w_r_t): 
-        #Here we can save mem by just sending a ref to the other tensor its self
         lhs, rhs = self.operands
         other_b = rhs.storage if lhs is w_r_t else lhs.storage
         grad_b = Blob(nbytes=other_b.nbytes)
@@ -216,34 +276,13 @@ class Mul(Operation):
         return grad_b
 
 
-class ScalarPower(Operation):
-    def __init__(self, *args): super().__init__("ElPow", "Unary", *args)
-
-    def forward(self): 
-        m, p = self.operands
-        return [[e ** p for e in raw] for raw in m.data]
-        
-    def gradient(self): 
-        m = self.operands[0]
-        return m.smul(self.operands[1]).data
-
-    
-
-class ScalarMul(Operation):
-    def __init__(self, *args): super().__init__("SMul", "Unary", *args)
-
-    def forward(self): 
-        m, p = self.operands
-        res_b = Blob(m.storage.nbytes)
-        return res_b
-        
-    def gradient(self): 
-        w_r_t, scalar = self.operands
-        grad_b = Blob(nbytes=w_r_t.storage.nbytes, fill=scalar)
-        return grad_b
 
 class Relu(Operation):
-    def __init__(self, *args): super().__init__("Relu", "Unary", *args)
+    """
+    Does the relu activation on on each element of a tensor
+    the gradient of relu is just relu
+    """
+    def __init__(self, *args): super().__init__("Relu", *args)
 
     def forward(self):
         m = self.operands[0]
@@ -255,10 +294,75 @@ class Relu(Operation):
         m = self.operands[0]
         return [[1 if e > 0 else 0 for e in row] for row in m.data]
 
+        
+class Transpose(ViewOps):
+    """exchanges the elements of two dims"""
+    def __init__(self, dims: Tuple[int]): 
+        super().__init__("Transpose", dims)
+
+    def forward(self): 
+        m, dims = self.operands
+        new_shape = m.shape
+        a = new_shape[dims[0]]
+        new_shape[dims[0]] = new_shape[dims[1]]
+        new_shape[dims[1]] = a
+        return m.storage, new_shape
     
+    def gradient(self, upstream_m):
+        dims = self.operands[1]
+        return upstream_m.transpose(dims[1], dims[0])
+     
+        
+class View(ViewOps):
+    """
+    This is a litteral different view of a tensor. 
+    No elemt postion swap is done just just reinterpret the buffer
+    """
+    def __init__(self, lhs, new_shape):
+        super().__init__("View",  lhs, new_shape)
+    
+    def forward(self):
+        t, new_shape = self.operands
+        return t.storage, new_shape
+
+    def gradient(self):
+        lhs = self.operands
+        grad_b = Blob(lhs.storage.nbytes)
+        grad_b._copy(lhs.storage)
+        return grad_b
+
+
+class BroadCast(ViewOps):
+    def __init__(self, lhs, new_shape: Tuple[int]):
+        super().__init__("Broadcast", lhs, new_shape)
+
+    def forward(self):
+        lhs, shape = self.operands
+        new_dims = len(shape) - len(lhs.shape)
+        assert new_dims >= 0, "can't broadcast to a smaller dim shape"
+        assert shape != lhs.shape, "can't broadcast to old shape"
+        assert all(shape[new_dims+i] == lhs.shape[i] or lhs.shape[i]==1  for i in range(lhs.dim())), "new shape can ony replace size 1 dims from existing dims"
+
+        new_shape = shape
+        
+        return lhs.storage, new_shape
+
+
+#this does casting to a dtype
+#for now that is just to float32
+#doesn't support backward
+class CastOp:
+    @staticmethod
+    def forward(lhs, res, dtype: Dtype):
+        ops[dtype.name].cast(lhs.storage, res.storage, lhs.numel())
+
+
         
 class Matmul(Operation):
-    _matmul = lambda m1, m2: [[_dot(row, col) for col in _transpose(m2)] for row in m1 ]
+    """
+    Matmul doesn't fit in the any of the above ops as  my may return tensors of different and
+    also the gradient is different from other Binary ops
+    """
     
     def __init__(self, *args):
         super().__init__("MMul", "MBinary", *args)
@@ -296,44 +400,3 @@ class Matmul(Operation):
         else:
             rgrad = Blob(Matmul._matmul(lhs.transpose().data, upstream_m.data))
             return rgrad.data
-        
-class ViewOp(Operation):
-    def __init__(self, *args):
-        super().__init__("View", "View", *args)
-    
-    def forward(self):
-        t, shape = self.operands
-        assert t.shape == shape , f"Invalid input size"
-        return t.storage, shape
-
-    def gradient(self):
-        return 
-
-class BroadCast(Operation):
-    def __init__(self, *args):
-        super().__init__("Broadcast", "View", *args)
-
-    def forward(self):
-        t, shape = self.operands
-        new_dims = len(shape) - len(t.shape)
-        assert new_dims >= 0, "can't broadcast to a smaller dim shape"
-        assert shape != t.shape, "can't broadcast to old shape"
-        assert all(shape[new_dims+i] == t.shape[i] or t.shape[i]==1  for i in range(t.dim())), "new shape can ony replace size 1 dims from existing dims"
-
-        new_shape = shape
-        
-        new = t.clone()
-
-        return new.storage, new_shape
-
-
-#this does casting to a dtype
-#for now that is just to float32
-#doesn't support backward
-class CastOp:
-    @staticmethod
-    def forward(lhs, res, dtype: Dtype):
-        ops[dtype.name].cast(lhs.storage, res.storage, lhs.numel())
-
-
-

@@ -24,6 +24,7 @@ class Blob:
 
     def __repr__(self):
         return f"Blob({self._get_pointer("void*")} <nbytes={self.nbytes}>)"
+    
     def _get_pointer(self, dtype: Optional[str]=None):
         if dtype is None:
             return self.__ptr
@@ -42,5 +43,9 @@ class Blob:
     def _copy(self, other):
         libc.memcpy(other._get_pointer(), self._get_pointer(), self.nbytes)
         return True
+
+    def _get_size(self):
+        return self.nbytes
+    
 
 

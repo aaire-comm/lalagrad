@@ -1,10 +1,4 @@
 
-"""
-Operation types:
-    Unary -> take a Tensor return Tensor of the same shape
-    Binary -> take a Tensor and return a Tensor
-    SReduce (Scalar reduce) take a Tensor and return single element Tensor (implicite autograd allowed)
-"""
 from typing import List, Optional, Union, Tuple
 import math
 from .utils import graph_html
@@ -134,9 +128,9 @@ class Tensor:
         return cls(0, label=label)
     
     def detach(self):
-        assert self.grad_fn is None, "trying to detach an unattached tensor"
-        self.grad_fn.detach(self)
-        self.grad_fn = None
+        assert self.src is None, "trying to detach an unattached tensor"
+        self.src.detach(self)
+        self.src = None
         
 
     def clone(self):
@@ -152,8 +146,8 @@ class Tensor:
     
     def view(self, *args): 
         if len(args):
-            return ViewOp(self, args)()
-        return ViewOp(self, self.shape)()  
+            return View(self, args)()
+        return View(self, self.shape)()  
         
         
     def to(self, dtype: Dtype): 
@@ -202,8 +196,6 @@ class Tensor:
         new.strides = new_strides
         return new
         
-
-        
     
     def spow(self, exp): return ScalarPower(self, exp)()
 
@@ -220,13 +212,14 @@ class Tensor:
     def dim(self): return self.dims
     def stride(self): return self.strides
 
+
     def backward(self, upstream_m: Optional["Tensor"]=None):
         assert self.requires_grad, "matrice doesn't requre_grad"
             
         if self.src:
             #TODO: Better to check if tensor is Scalar than relay on op_type
 
-            if not upstream_m and self.src.op_type != "SReduce":
+            if not upstream_m and not self.is_scalar():
                 raise RuntimeError("implicit backward only defined for single elemnt matrices")
             self.src.backward(upstream_m)
         else:

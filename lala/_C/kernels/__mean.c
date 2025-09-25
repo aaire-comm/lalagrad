@@ -46,7 +46,7 @@ void mean_int(int *t, float* res, int size){
 }
 
 
-void mean_float(int *t, float* res, int size){
+void mean_float(float *t, float* res, int size){
 
     int MAX_THEAD_NUM = omp_get_max_threads();
 

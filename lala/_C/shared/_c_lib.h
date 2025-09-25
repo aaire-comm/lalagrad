@@ -7,6 +7,9 @@ void add_scalar_int(int* rhs, int scalar, int* res, int size);
 void mul_scalar_int(int* rhs, int scalar, int* res, int size);
 void div_scalar_int(int* rhs, int scalar, int* res, int size);
 void sub_scalar_int(int* rhs, int scalar, int* res, int size);
+void mul_scalar_float(float* rhs, float scalar, float* res, int size); 
+
+
 
 //tensor with tensor  ops
 void add_float(float *rhs, float* lhs, float* res, int size);
@@ -15,6 +18,7 @@ void sub_float(float *rhs, float* lhs, float* res, int size);
 void sub_int(int *rhs, int* lhs, int* res, int size);
 void div_int(int *rhs, int* lhs, int* res, int size);
 void mul_int(int *rhs, int* lhs, int* res, int size);
+void mul_float(float *rhs, float* lhs, float* res, int size);
 void matmul_int(int* lhs, int* rhs,  int* s1, int* s2);
 void matmul_float(float* lhs, float* rhs, int* s1, int* s2);
 

@@ -2,7 +2,7 @@ from typing import Tuple, List, Callable, Optional
 import lala
 from lala.functional import relu
 """
-#inplement a simple Attention block 
+#implement a simple Attention block (Not masked)
 #as of the 2015 (Attention is all you need paper from Google)
 #Single Head Attention
 
@@ -25,7 +25,7 @@ class Attention:
         K = x @ self.wk
         V = x @ self.wv
 
-        ap = Q @ K.T #Attention patter/Attention Score
+        ap = Q @ K.T #Attention pattern/Attention Score
 
         out = relu(ap @ V)
         return out
@@ -67,14 +67,50 @@ att_blk.bach_train(batch_training_data)
 
 """
 
-l = lala.fill(2, 1, 3, value=3.0, requires_grad=True)
+l = lala.zeros(3, 3,  requires_grad=True)
+l2 = lala.fill(3, 3, value=23.0)
 
-l2 = l.broadcast_to(2, 5, 3)
-
-print(l2.shape, l2.stride( ))
-
-
-
-print(l2.tolist())
+b = lala.zeros(3, 3, requires_grad=True)
+target = l2.clone()
 
 
+#pred
+logits = l * l2 + b
+
+loss = (logits - target).spow(2).mean()
+
+
+print(loss.tolist())
+loss.backward()
+print(l.grad.tolist())
+
+loss.visualize()
+
+import torch
+
+
+
+l = torch.zeros(3, 3,  requires_grad=True)
+l2 = torch.tensor(data=l2.tolist())
+
+b = torch.zeros(3, 3, requires_grad=True)
+target = l2.clone()
+
+
+#pred
+logits = l * l2 + b
+
+loss = ((logits - target) ** 2).mean()
+loss.backward()
+print(loss)
+print(l.grad)
+
+l = torch.tensor(l - l.grad, requires_grad=True)
+b = torch.tensor(b - b.grad, requires_grad=True)
+
+logits = l * l2 + b
+
+loss = ((logits - target) ** 2).mean()
+
+print(loss)
+print(l.grad)

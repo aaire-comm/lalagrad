@@ -374,13 +374,17 @@ class Matmul(Operation):
     def forward(self):
         lhs, rhs = self.operands
         #Number of cols of lhs == Number of rows of rhs
-        # assert lhs.shape[1] == rhs.shape[0] 
+        assert lhs.shape[-2] == rhs.shape[-1] 
+        lhs_strides = lhs.stride()
+        rhs_strides = rhs.stride()
 
-        res_shape = (lhs.shape[-2], lhs.shape[-1])
+        res_shape = tuple(lhs.shape[i] if lhs_strides[i] else 1 for i in range(lhs.dims -2 )) + (lhs.shape[-2], rhs.shape[-1])
+        print(res_shape)
+
         p = ops[self.op_dtype.name].batch_matmul(lhs.storage, rhs.storage, lhs.shape, lhs.stride(), rhs.shape, rhs.stride(), lhs.dims)
-        res = Blob(ptr=p, nbytes=math.prod(res_shape)*self.op_dtype.bytes,  zero_init=True)
-        print(res._get_pointer(), p)
-        # ops[self.op_dtype.name].matmul(lhs.storage, rhs.storage, res, lhs.shape[-2], lhs.shape[-1], rhs.shape[-1])
+        print(p)
+        res = Blob( nbytes=math.prod(res_shape)*self.op_dtype.bytes,  zero_init=True)
+        ops[self.op_dtype.name].matmul(lhs.storage, rhs.storage, res, lhs.shape[-2], lhs.shape[-1], rhs.shape[-1])
         return res, res_shape
 
 

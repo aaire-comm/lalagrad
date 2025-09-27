@@ -119,6 +119,8 @@
 # mlp.train(data)
 
 import lala
+import os
+print(f"PID: {os.getpid()}")
 
 
 l = lala.tensor(data=[[float(i) for j in range(10)] for i in range(5)], requires_grad=True)
@@ -127,16 +129,9 @@ l2 = lala.tensor(data=[[float(j) for j in range(5)] for i in range(10)],  requir
 l4 = l.broadcast_to(4, 3, 5, *l.shape)
 l6 = l2.broadcast_to(4, 3, 5, *l2.shape)
 
-l3 = l @ l2
-
-l5 = l4 @ l2
-
-print(l5.tolist())
-
-import torch
-
-l = torch.tensor(data=l.tolist(), requires_grad=True)
-l2 = torch.tensor(data=l2.tolist(),  requires_grad=True)
-
-l3 = l @ l2
+l3 = l4 @ l6
 print(l3.tolist())
+exit()
+
+
+

@@ -87,7 +87,6 @@ class Float32Ops:
     @staticmethod
     def batch_matmul(t1: Blob, t2: Blob, lhs_shape: Tuple[int], lhs_stride: Tuple[int], rhs_shape: Tuple[int], rhs_stride: Tuple[int], dims: int):
         pointer = lib.batch_matmul_float(t1._get_pointer("float*"), t2._get_pointer("float*"), lhs_shape, lhs_stride, rhs_shape, rhs_stride, dims)
-        print(pointer)
         return pointer
 
     @staticmethod

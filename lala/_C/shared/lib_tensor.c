@@ -22,3 +22,4 @@
 #include "../kernels/__power.c"
 #include "../kernels/__power_scalar.c"
 #include "../kernels/__cast_to_float.c"
+#include "../kernels/__batch_matmul.c"

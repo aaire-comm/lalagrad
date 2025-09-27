@@ -29,7 +29,7 @@ class Tensor:
                 blob = Blob(ptr=ptr, nbytes=nbytes)
 
             #from numpy ndarray
-            if isinstance(data, np.ndarray):
+            elif isinstance(data, np.ndarray):
                 shape = data.shape
                 nbytes = data.size * dtype.bytes
                 ptr = data.ctypes.data

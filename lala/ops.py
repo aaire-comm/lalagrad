@@ -305,11 +305,12 @@ class Transpose(ViewOps):
     def forward(self): 
         m, dims = self.operands
         new_shape = list(m.shape)
-
         a = new_shape[dims[0]]
         new_shape[dims[0]] = new_shape[dims[1]]
         new_shape[dims[1]] = a
-        return m.storage, tuple(new_shape)
+        res_b = Blob(m.storage.nbytes)
+        ops[self.op_dtype.name].transpose(m.storage, res_b, *m.shape, ())
+        return res_b, tuple(new_shape)
     
     def gradient(self, upstream_m):
         dims = self.operands[1]
@@ -373,18 +374,19 @@ class Matmul(Operation):
     def forward(self):
         lhs, rhs = self.operands
         #Number of cols of lhs == Number of rows of rhs
-        assert lhs.shape[1] == rhs.shape[0] 
+        # assert lhs.shape[1] == rhs.shape[0] 
 
-
-        res_shape = (lhs.shape[0], rhs.shape[1])
-        res = Blob(nbytes=math.prod(res_shape)*self.op_dtype.bytes,  zero_init=True)
-        ops[self.op_dtype.name].matmul(lhs.storage, rhs.storage, res, *lhs.shape, rhs.shape[1])
+        res_shape = (lhs.shape[-2], lhs.shape[-1])
+        p = ops[self.op_dtype.name].batch_matmul(lhs.storage, rhs.storage, lhs.shape, lhs.stride(), rhs.shape, rhs.stride(), lhs.dims)
+        res = Blob(ptr=p, nbytes=math.prod(res_shape)*self.op_dtype.bytes,  zero_init=True)
+        print(res._get_pointer(), p)
+        # ops[self.op_dtype.name].matmul(lhs.storage, rhs.storage, res, lhs.shape[-2], lhs.shape[-1], rhs.shape[-1])
         return res, res_shape
 
 
     def gradient(self, w_r_t, upstream_m): 
         lhs, rhs = self.operands
-        print(upstream_m.tolist())
+
         if w_r_t is lhs:
             rhs_t = rhs.transpose(0, 1)
             lgrad_b = Blob(upstream_m.shape[0]*rhs_t.shape[1]*self.op_dtype.bytes)

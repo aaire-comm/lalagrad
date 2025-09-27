@@ -81,13 +81,19 @@ class Float32Ops:
         lib.fill_float(t._get_pointer("float*"), value, int(t.nbytes/4))
     
     @staticmethod
-    def matmul(t1: Blob, t2: Blob, ret: Blob, lhs_rows: int, lhs_cols: int, rhs_rows: int):
-        lib.matmul_float(lhs_rows, lhs_cols, rhs_rows, t1._get_pointer("float*"), t2._get_pointer("float*"), ret._get_pointer("float*"))
+    def matmul(t1: Blob, t2: Blob, ret: Blob, lhs_rows: int, lhs_cols: int, rhs_cols: int):
+        lib.matmul_float(lhs_rows, lhs_cols, rhs_cols, t1._get_pointer("float*"), t2._get_pointer("float*"), ret._get_pointer("float*"))
 
     @staticmethod
-    def transpose(t: Blob, dim0: int, dim1: int, strides: Tuple[int]):
+    def batch_matmul(t1: Blob, t2: Blob, lhs_shape: Tuple[int], lhs_stride: Tuple[int], rhs_shape: Tuple[int], rhs_stride: Tuple[int], dims: int):
+        pointer = lib.batch_matmul_float(t1._get_pointer("float*"), t2._get_pointer("float*"), lhs_shape, lhs_stride, rhs_shape, rhs_stride, dims)
+        print(pointer)
+        return pointer
+
+    @staticmethod
+    def transpose(t: Blob, res: Blob, dim0: int, dim1: int, strides: Tuple[int]):
         s = ffi.new(f"int[{len(strides)}]", strides)
-        lib.transpose_float(t._get_pointer("float*"), dim0, dim1, s, int(t.nbytes/4))
+        lib.transpose_float(t._get_pointer("float*"), res._get_pointer("float*"), dim0, dim1)
 
     def cast(t: Blob, t1: Blob, size: int):
         lib.cast_int_float(t._get_pointer("int*"), t1._get_pointer("float*"), int(t.nbytes/4))

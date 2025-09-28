@@ -122,16 +122,8 @@ import lala
 import os
 print(f"PID: {os.getpid()}")
 
+l = lala.tensor([[i*j for i in range(3)] for j in range(4)], dtype=lala.float32)
 
-l = lala.tensor(data=[[float(i) for j in range(10)] for i in range(5)], requires_grad=True)
-l2 = lala.tensor(data=[[float(j) for j in range(5)] for i in range(10)],  requires_grad=True)
-
-l4 = l.broadcast_to(4, 3, 5, *l.shape)
-l6 = l2.broadcast_to(4, 3, 5, *l2.shape)
-
-l3 = l4 @ l6
-print(l3.tolist())
-exit()
-
-
+print(l.tolist())
+print(l.transpose(0, 1).tolist())
 

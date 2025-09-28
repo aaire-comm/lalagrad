@@ -52,14 +52,14 @@ class Operation:
     def __call__(self): 
         from lala.tensor import Tensor
 
-        data, shape = self.forward()
+        data, shape, strides = self.forward()
 
         #Don't include in the Comp graph unless it requires gradien
         if self.requires_grad:
             src = self
         else:
             src = None
-        return Tensor(*shape, data=data, src=src, dtype=self.op_dtype, requires_grad=self.requires_grad)
+        return Tensor(*shape, data=data, strides=strides, src=src, dtype=self.op_dtype, requires_grad=self.requires_grad)
     
 
     def backward(self, upstream_m):
@@ -145,7 +145,7 @@ class Mean(ReduceOps):
         res = Blob(m.dtype.bytes)
         #TODO: Make the mean kernel take a dimension
         ops[self.op_dtype.name].mean_t(m.storage, res)
-        return res, ()
+        return res, (), None
     
     def gradient(self):
         m = self.operands[0]
@@ -162,7 +162,7 @@ class ScalarPower(UnOps):
         lhs, exp = self.operands
         res = Blob(nbytes=lhs.storage.nbytes)
         ops[self.op_dtype.name].exp(lhs.storage, exp, res)
-        return res, lhs.shape
+        return res, lhs.shape, None
         
     def gradient(self): 
         lhs, exp = self.operands
@@ -181,7 +181,7 @@ class ScalarMul(UnOps):
         res_b = Blob(lhs.storage.nbytes)
         ops[self.op_dtype.name].mul_s(lhs.storage, s,  res_b)
 
-        return res_b, lhs.shape
+        return res_b, lhs.shape, None
         
     def gradient(self): 
         w_r_t, scalar = self.operands
@@ -197,7 +197,7 @@ class Add(BinaryOps):
         rhs, lhs = self.operands
         res = Blob(nbytes=rhs.storage.nbytes)
         ops[self.op_dtype.name].add_t(rhs.storage, lhs.storage, res)
-        return res, rhs.shape
+        return res, rhs.shape, None
 
     def gradient(self, w_r_t): 
         assert w_r_t in self.operands, "w_r_t is not an operand of this grad_fn"
@@ -215,7 +215,7 @@ class Sub(BinaryOps):
         rhs, lhs = self.operands
         res = Blob(nbytes=rhs.storage.nbytes)
         ops[self.op_dtype.name].sub_t(rhs.storage, lhs.storage, res)
-        return res, rhs.shape
+        return res, rhs.shape, None
     
 
     def gradient(self, w_r_t): 
@@ -245,7 +245,7 @@ class Sum(ReduceOps):
             rhs, _ = self.operands
             res = Blob(nbytes=m.dtype.bytes)
             ops[self.op_dtype.name].sum_t(rhs.storage, res)
-            return res, ()
+            return res, (), None
             #TODO: Implement sum allong dim with strides
         else: 
             raise NotImplementedError("Sum along a dim not Implemented yet")
@@ -268,7 +268,7 @@ class Mul(BinaryOps):
         rhs, lhs = self.operands
         res = Blob(nbytes=rhs.storage.nbytes)
         ops[self.op_dtype.name].mul_t(rhs.storage, lhs.storage, res)
-        return res, rhs.shape
+        return res, rhs.shape, None
     
     def gradient(self, w_r_t): 
         lhs, rhs = self.operands
@@ -290,7 +290,7 @@ class Relu(Operation):
         m = self.operands[0]
         res = Blob.empty(*m.shape, dtype=int32)
         
-        return res, 
+        return res, m.shape, None 
     
     def gradient(self):
         m = self.operands[0]
@@ -308,9 +308,11 @@ class Transpose(ViewOps):
         a = new_shape[dims[0]]
         new_shape[dims[0]] = new_shape[dims[1]]
         new_shape[dims[1]] = a
-        res_b = Blob(m.storage.nbytes)
-        ops[self.op_dtype.name].transpose(m.storage, res_b, *m.shape, ())
-        return res_b, tuple(new_shape)
+        new_stride = list(m.stride())
+        a = new_stride[dims[0]]
+        new_stride[dims[0]] = new_stride[dims[1]]
+        new_stride[dims[1]] = a
+        return m.storage, tuple(new_shape), tuple(new_stride)
     
     def gradient(self, upstream_m):
         dims = self.operands[1]
@@ -327,7 +329,7 @@ class View(ViewOps):
     
     def forward(self):
         t, new_shape = self.operands
-        return t.storage, new_shape
+        return t.storage, new_shape, None
 
     def gradient(self):
         lhs = self.operands
@@ -346,10 +348,8 @@ class BroadCast(ViewOps):
         assert new_dims >= 0, "can't broadcast to a smaller dim shape"
         assert shape != lhs.shape, "can't broadcast to old shape"
         assert all(shape[new_dims+i] == lhs.shape[i] or lhs.shape[i]==1  for i in range(lhs.dim())), "new shape can ony replace size 1 dims from existing dims"
-
-        new_shape = shape
-        
-        return lhs.storage, new_shape
+        new_shape, new_stride = shape, tuple(0 for _ in range(new_dims)) + lhs.stride()
+        return lhs.storage, new_shape, new_stride
 
 
 #this does casting to a dtype
@@ -366,6 +366,9 @@ class Matmul(Operation):
     """
     Matmul doesn't fit in the any of the above ops as  my may return tensors of different and
     also the gradient is different from other Binary ops
+
+    This is also the only op that returns a pointer for the result tensor in case of 
+    batched matmul as the mem size and allocation are handled in the kernel
     """
     
     def __init__(self, *args):
@@ -373,19 +376,28 @@ class Matmul(Operation):
         
     def forward(self):
         lhs, rhs = self.operands
-        #Number of cols of lhs == Number of rows of rhs
-        assert lhs.shape[-2] == rhs.shape[-1] 
-        lhs_strides = lhs.stride()
-        rhs_strides = rhs.stride()
+        #this dims are along which we do matmuls 
+        #common_dims is > 0 for batch matmul and 0 for single matmul
+        rhs_rows, rhs_cols = rhs.shape[-2:]
+        lhs_rows, lhs_cols = lhs.shape[-2:]
+        assert lhs_cols == rhs_rows
+        common_dims = lhs.dims - 2 
+        
+        res_shape = (lhs_rows, rhs_cols)
+        res_strides = None
+        if common_dims:
+            common_shapes = lhs.shape[:common_dims]
+            res_shape = common_shapes + res_shape
+            rhs_strides = rhs.stride()
+            lhs_strides = lhs.stride()
 
-        res_shape = tuple(lhs.shape[i] if lhs_strides[i] else 1 for i in range(lhs.dims -2 )) + (lhs.shape[-2], rhs.shape[-1])
-        print(res_shape)
-
-        p = ops[self.op_dtype.name].batch_matmul(lhs.storage, rhs.storage, lhs.shape, lhs.stride(), rhs.shape, rhs.stride(), lhs.dims)
-        print(p)
-        res = Blob( nbytes=math.prod(res_shape)*self.op_dtype.bytes,  zero_init=True)
-        ops[self.op_dtype.name].matmul(lhs.storage, rhs.storage, res, lhs.shape[-2], lhs.shape[-1], rhs.shape[-1])
-        return res, res_shape
+            res_strides = tuple(max(s0, s1) for s0, s1 in zip(lhs_strides[:common_dims], rhs_strides[:common_dims])) + (rhs_cols, 1)
+            p = ops[self.op_dtype.name].batch_matmul(lhs.storage, rhs.storage, common_shapes, lhs_strides, rhs_strides, res_strides, common_dims, lhs_rows, lhs_cols, rhs_cols)
+            res = Blob(ptr=p, nbytes=math.prod(res_shape)*self.op_dtype.bytes)
+        else:
+            res = Blob(nbytes=math.prod(res_shape)*self.op_dtype.bytes,  zero_init=True)
+            ops[self.op_dtype.name].matmul(lhs.storage, rhs.storage, res, lhs.shape[-2], lhs.shape[-1], rhs.shape[-1])
+        return res, res_shape, res_strides
 
 
     def gradient(self, w_r_t, upstream_m): 

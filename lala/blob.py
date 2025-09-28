@@ -34,8 +34,8 @@ class Blob:
         libc.free(self._get_pointer(float32))
         return True
     
-    def _to_python_list(self, shape, dtype: str):
-        return _to_python_list(self._get_pointer(dtype), shape)
+    def _to_python_list(self, shape, strides, dtype: str):
+        return _to_python_list(self._get_pointer(dtype), shape, strides)
 
     def _get_item(self, offset: int, dtype: str):
         return self._get_pointer(dtype)[offset]

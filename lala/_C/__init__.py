@@ -59,6 +59,32 @@ class Int32Ops:
         s0_ptr = ffi.new(f"int[{len(s0)}]", s0)
         s1_ptr = ffi.new(f"int[{len(s1)}]", s1)
         lib.matmul_int(t1._get_pointer("int*"), t2._get_pointer("int*"), s0_ptr, s1_ptr)
+    @staticmethod
+    def batch_matmul(
+        t1: Blob, 
+        t2: Blob, 
+        common_shape: Tuple[int], 
+        lhs_stride: Tuple[int], 
+        rhs_stride: Tuple[int], 
+        res_strides: Tuple[int], 
+        common_dims: int, 
+        lhs_rows: int, 
+        lhs_cols: int, 
+        rhs_cols: int
+        ):
+
+        pointer = lib.batch_matmul_int(
+            t1._get_pointer("int*"), 
+            t2._get_pointer("int*"),
+            common_shape, lhs_stride, 
+            rhs_stride, 
+            res_strides, 
+            lhs_rows, 
+            lhs_cols,
+            rhs_cols, 
+            common_dims
+            )
+        return pointer
 
 
 
@@ -85,8 +111,30 @@ class Float32Ops:
         lib.matmul_float(lhs_rows, lhs_cols, rhs_cols, t1._get_pointer("float*"), t2._get_pointer("float*"), ret._get_pointer("float*"))
 
     @staticmethod
-    def batch_matmul(t1: Blob, t2: Blob, lhs_shape: Tuple[int], lhs_stride: Tuple[int], rhs_shape: Tuple[int], rhs_stride: Tuple[int], dims: int):
-        pointer = lib.batch_matmul_float(t1._get_pointer("float*"), t2._get_pointer("float*"), lhs_shape, lhs_stride, rhs_shape, rhs_stride, dims)
+    def batch_matmul(
+        t1: Blob, 
+        t2: Blob, 
+        common_shape: Tuple[int], 
+        lhs_stride: Tuple[int], 
+        rhs_stride: Tuple[int], 
+        res_strides: Tuple[int], 
+        common_dims: int, 
+        lhs_rows: int, 
+        lhs_cols: int, 
+        rhs_cols: int
+        ):
+
+        pointer = lib.batch_matmul_float(
+            t1._get_pointer("float*"), 
+            t2._get_pointer("float*"),
+            common_shape, lhs_stride, 
+            rhs_stride, 
+            res_strides, 
+            lhs_rows, 
+            lhs_cols,
+            rhs_cols, 
+            common_dims
+            )
         return pointer
 
     @staticmethod

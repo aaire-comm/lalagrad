@@ -577,115 +577,130 @@ static void (*_cffi_call_python_org)(struct _cffi_externpy_s *, char *);
 /************************************************************/
 
 static void *_cffi_types[] = {
-/*  0 */ _CFFI_OP(_CFFI_OP_FUNCTION, 1), // float *()(float *, float *, int *, int *, int *, int *, int)
-/*  1 */ _CFFI_OP(_CFFI_OP_POINTER, 41), // float *
+/*  0 */ _CFFI_OP(_CFFI_OP_FUNCTION, 1), // float *()(float *, float *, int *, int *, int *, int *, int, int, int, int)
+/*  1 */ _CFFI_OP(_CFFI_OP_POINTER, 56), // float *
 /*  2 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
 /*  3 */ _CFFI_OP(_CFFI_OP_POINTER, 7), // int *
 /*  4 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
 /*  5 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
 /*  6 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
 /*  7 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7), // int
-/*  8 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/*  9 */ _CFFI_OP(_CFFI_OP_FUNCTION, 13), // void *()(size_t)
-/* 10 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 28), // size_t
+/*  8 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/*  9 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 10 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
 /* 11 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 12 */ _CFFI_OP(_CFFI_OP_FUNCTION, 13), // void *()(void *, int, size_t)
-/* 13 */ _CFFI_OP(_CFFI_OP_POINTER, 108), // void *
-/* 14 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 15 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 28),
-/* 16 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 17 */ _CFFI_OP(_CFFI_OP_FUNCTION, 13), // void *()(void *, void const *, size_t)
-/* 18 */ _CFFI_OP(_CFFI_OP_NOOP, 13),
-/* 19 */ _CFFI_OP(_CFFI_OP_POINTER, 108), // void const *
-/* 20 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 28),
-/* 21 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 22 */ _CFFI_OP(_CFFI_OP_FUNCTION, 108), // void()(float *, float *, float *, int)
-/* 23 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
-/* 24 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
-/* 25 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
-/* 26 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 27 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 28 */ _CFFI_OP(_CFFI_OP_FUNCTION, 108), // void()(float *, float *, int)
-/* 29 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
-/* 30 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
-/* 31 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 32 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 33 */ _CFFI_OP(_CFFI_OP_FUNCTION, 108), // void()(float *, float *, int, int)
-/* 34 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
-/* 35 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
-/* 36 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 37 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 38 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 39 */ _CFFI_OP(_CFFI_OP_FUNCTION, 108), // void()(float *, float, float *, int)
+/* 12 */ _CFFI_OP(_CFFI_OP_FUNCTION, 3), // int *()(int *, int *, int *, int *, int *, int *, int, int, int, int)
+/* 13 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
+/* 14 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
+/* 15 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
+/* 16 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
+/* 17 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
+/* 18 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
+/* 19 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 20 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 21 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 22 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 23 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 24 */ _CFFI_OP(_CFFI_OP_FUNCTION, 28), // void *()(size_t)
+/* 25 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 28), // size_t
+/* 26 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 27 */ _CFFI_OP(_CFFI_OP_FUNCTION, 28), // void *()(void *, int, size_t)
+/* 28 */ _CFFI_OP(_CFFI_OP_POINTER, 123), // void *
+/* 29 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 30 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 28),
+/* 31 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 32 */ _CFFI_OP(_CFFI_OP_FUNCTION, 28), // void *()(void *, void const *, size_t)
+/* 33 */ _CFFI_OP(_CFFI_OP_NOOP, 28),
+/* 34 */ _CFFI_OP(_CFFI_OP_POINTER, 123), // void const *
+/* 35 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 28),
+/* 36 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 37 */ _CFFI_OP(_CFFI_OP_FUNCTION, 123), // void()(float *, float *, float *, int)
+/* 38 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
+/* 39 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
 /* 40 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
-/* 41 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 13), // float
-/* 42 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
-/* 43 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 44 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 45 */ _CFFI_OP(_CFFI_OP_FUNCTION, 108), // void()(float *, float, int)
-/* 46 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
-/* 47 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 13),
-/* 48 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 49 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 50 */ _CFFI_OP(_CFFI_OP_FUNCTION, 108), // void()(int *, float *, int)
-/* 51 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
-/* 52 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
-/* 53 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 54 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 55 */ _CFFI_OP(_CFFI_OP_FUNCTION, 108), // void()(int *, float, int *, int)
-/* 56 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
-/* 57 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 13),
-/* 58 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
-/* 59 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 60 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 61 */ _CFFI_OP(_CFFI_OP_FUNCTION, 108), // void()(int *, int *, int *, int *)
-/* 62 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
-/* 63 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
-/* 64 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
-/* 65 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
-/* 66 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 67 */ _CFFI_OP(_CFFI_OP_FUNCTION, 108), // void()(int *, int *, int *, int)
-/* 68 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
-/* 69 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
-/* 70 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
-/* 71 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 72 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 73 */ _CFFI_OP(_CFFI_OP_FUNCTION, 108), // void()(int *, int *, int)
-/* 74 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
-/* 75 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
-/* 76 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 77 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 78 */ _CFFI_OP(_CFFI_OP_FUNCTION, 108), // void()(int *, int, int *, int)
+/* 41 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 42 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 43 */ _CFFI_OP(_CFFI_OP_FUNCTION, 123), // void()(float *, float *, int)
+/* 44 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
+/* 45 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
+/* 46 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 47 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 48 */ _CFFI_OP(_CFFI_OP_FUNCTION, 123), // void()(float *, float *, int, int)
+/* 49 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
+/* 50 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
+/* 51 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 52 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 53 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 54 */ _CFFI_OP(_CFFI_OP_FUNCTION, 123), // void()(float *, float, float *, int)
+/* 55 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
+/* 56 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 13), // float
+/* 57 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
+/* 58 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 59 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 60 */ _CFFI_OP(_CFFI_OP_FUNCTION, 123), // void()(float *, float, int)
+/* 61 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
+/* 62 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 13),
+/* 63 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 64 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 65 */ _CFFI_OP(_CFFI_OP_FUNCTION, 123), // void()(int *, float *, int)
+/* 66 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
+/* 67 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
+/* 68 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 69 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 70 */ _CFFI_OP(_CFFI_OP_FUNCTION, 123), // void()(int *, float, int *, int)
+/* 71 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
+/* 72 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 13),
+/* 73 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
+/* 74 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 75 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 76 */ _CFFI_OP(_CFFI_OP_FUNCTION, 123), // void()(int *, int *, int *, int *)
+/* 77 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
+/* 78 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
 /* 79 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
-/* 80 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 81 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
-/* 82 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 83 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 84 */ _CFFI_OP(_CFFI_OP_FUNCTION, 108), // void()(int *, int, int)
+/* 80 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
+/* 81 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 82 */ _CFFI_OP(_CFFI_OP_FUNCTION, 123), // void()(int *, int *, int *, int)
+/* 83 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
+/* 84 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
 /* 85 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
 /* 86 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 87 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 88 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 89 */ _CFFI_OP(_CFFI_OP_FUNCTION, 108), // void()(int *, int, int, int *, int, int)
+/* 87 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 88 */ _CFFI_OP(_CFFI_OP_FUNCTION, 123), // void()(int *, int *, int)
+/* 89 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
 /* 90 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
 /* 91 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 92 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 93 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
-/* 94 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 92 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 93 */ _CFFI_OP(_CFFI_OP_FUNCTION, 123), // void()(int *, int, int *, int)
+/* 94 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
 /* 95 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 96 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 97 */ _CFFI_OP(_CFFI_OP_FUNCTION, 108), // void()(int, int, int, float *, float *, float *)
-/* 98 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 99 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 100 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
-/* 101 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
-/* 102 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
-/* 103 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
-/* 104 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 105 */ _CFFI_OP(_CFFI_OP_FUNCTION, 108), // void()(void *)
-/* 106 */ _CFFI_OP(_CFFI_OP_NOOP, 13),
-/* 107 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
-/* 108 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 0), // void
+/* 96 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
+/* 97 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 98 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 99 */ _CFFI_OP(_CFFI_OP_FUNCTION, 123), // void()(int *, int, int)
+/* 100 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
+/* 101 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 102 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 103 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 104 */ _CFFI_OP(_CFFI_OP_FUNCTION, 123), // void()(int *, int, int, int *, int, int)
+/* 105 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
+/* 106 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 107 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 108 */ _CFFI_OP(_CFFI_OP_NOOP, 3),
+/* 109 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 110 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 111 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 112 */ _CFFI_OP(_CFFI_OP_FUNCTION, 123), // void()(int, int, int, float *, float *, float *)
+/* 113 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 114 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 115 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 7),
+/* 116 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
+/* 117 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
+/* 118 */ _CFFI_OP(_CFFI_OP_NOOP, 1),
+/* 119 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 120 */ _CFFI_OP(_CFFI_OP_FUNCTION, 123), // void()(void *)
+/* 121 */ _CFFI_OP(_CFFI_OP_NOOP, 28),
+/* 122 */ _CFFI_OP(_CFFI_OP_FUNCTION_END, 0),
+/* 123 */ _CFFI_OP(_CFFI_OP_PRIMITIVE, 0), // void
 };
 
 static void _cffi_d_add_float(float * x0, float * x1, float * x2, int x3)
@@ -887,9 +902,9 @@ _cffi_f_add_scalar_int(PyObject *self, PyObject *args)
 #  define _cffi_f_add_scalar_int _cffi_d_add_scalar_int
 #endif
 
-static float * _cffi_d_batch_matmul_float(float * x0, float * x1, int * x2, int * x3, int * x4, int * x5, int x6)
+static float * _cffi_d_batch_matmul_float(float * x0, float * x1, int * x2, int * x3, int * x4, int * x5, int x6, int x7, int x8, int x9)
 {
-  return batch_matmul_float(x0, x1, x2, x3, x4, x5, x6);
+  return batch_matmul_float(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9);
 }
 #ifndef PYPY_VERSION
 static PyObject *
@@ -902,6 +917,9 @@ _cffi_f_batch_matmul_float(PyObject *self, PyObject *args)
   int * x4;
   int * x5;
   int x6;
+  int x7;
+  int x8;
+  int x9;
   Py_ssize_t datasize;
   struct _cffi_freeme_s *large_args_free = NULL;
   float * result;
@@ -913,8 +931,11 @@ _cffi_f_batch_matmul_float(PyObject *self, PyObject *args)
   PyObject *arg4;
   PyObject *arg5;
   PyObject *arg6;
+  PyObject *arg7;
+  PyObject *arg8;
+  PyObject *arg9;
 
-  if (!PyArg_UnpackTuple(args, "batch_matmul_float", 7, 7, &arg0, &arg1, &arg2, &arg3, &arg4, &arg5, &arg6))
+  if (!PyArg_UnpackTuple(args, "batch_matmul_float", 10, 10, &arg0, &arg1, &arg2, &arg3, &arg4, &arg5, &arg6, &arg7, &arg8, &arg9))
     return NULL;
 
   datasize = _cffi_prepare_pointer_call_argument(
@@ -975,9 +996,21 @@ _cffi_f_batch_matmul_float(PyObject *self, PyObject *args)
   if (x6 == (int)-1 && PyErr_Occurred())
     return NULL;
 
+  x7 = _cffi_to_c_int(arg7, int);
+  if (x7 == (int)-1 && PyErr_Occurred())
+    return NULL;
+
+  x8 = _cffi_to_c_int(arg8, int);
+  if (x8 == (int)-1 && PyErr_Occurred())
+    return NULL;
+
+  x9 = _cffi_to_c_int(arg9, int);
+  if (x9 == (int)-1 && PyErr_Occurred())
+    return NULL;
+
   Py_BEGIN_ALLOW_THREADS
   _cffi_restore_errno();
-  { result = batch_matmul_float(x0, x1, x2, x3, x4, x5, x6); }
+  { result = batch_matmul_float(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9); }
   _cffi_save_errno();
   Py_END_ALLOW_THREADS
 
@@ -988,6 +1021,127 @@ _cffi_f_batch_matmul_float(PyObject *self, PyObject *args)
 }
 #else
 #  define _cffi_f_batch_matmul_float _cffi_d_batch_matmul_float
+#endif
+
+static int * _cffi_d_batch_matmul_int(int * x0, int * x1, int * x2, int * x3, int * x4, int * x5, int x6, int x7, int x8, int x9)
+{
+  return batch_matmul_int(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9);
+}
+#ifndef PYPY_VERSION
+static PyObject *
+_cffi_f_batch_matmul_int(PyObject *self, PyObject *args)
+{
+  int * x0;
+  int * x1;
+  int * x2;
+  int * x3;
+  int * x4;
+  int * x5;
+  int x6;
+  int x7;
+  int x8;
+  int x9;
+  Py_ssize_t datasize;
+  struct _cffi_freeme_s *large_args_free = NULL;
+  int * result;
+  PyObject *pyresult;
+  PyObject *arg0;
+  PyObject *arg1;
+  PyObject *arg2;
+  PyObject *arg3;
+  PyObject *arg4;
+  PyObject *arg5;
+  PyObject *arg6;
+  PyObject *arg7;
+  PyObject *arg8;
+  PyObject *arg9;
+
+  if (!PyArg_UnpackTuple(args, "batch_matmul_int", 10, 10, &arg0, &arg1, &arg2, &arg3, &arg4, &arg5, &arg6, &arg7, &arg8, &arg9))
+    return NULL;
+
+  datasize = _cffi_prepare_pointer_call_argument(
+      _cffi_type(3), arg0, (char **)&x0);
+  if (datasize != 0) {
+    x0 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
+    if (_cffi_convert_array_argument(_cffi_type(3), arg0, (char **)&x0,
+            datasize, &large_args_free) < 0)
+      return NULL;
+  }
+
+  datasize = _cffi_prepare_pointer_call_argument(
+      _cffi_type(3), arg1, (char **)&x1);
+  if (datasize != 0) {
+    x1 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
+    if (_cffi_convert_array_argument(_cffi_type(3), arg1, (char **)&x1,
+            datasize, &large_args_free) < 0)
+      return NULL;
+  }
+
+  datasize = _cffi_prepare_pointer_call_argument(
+      _cffi_type(3), arg2, (char **)&x2);
+  if (datasize != 0) {
+    x2 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
+    if (_cffi_convert_array_argument(_cffi_type(3), arg2, (char **)&x2,
+            datasize, &large_args_free) < 0)
+      return NULL;
+  }
+
+  datasize = _cffi_prepare_pointer_call_argument(
+      _cffi_type(3), arg3, (char **)&x3);
+  if (datasize != 0) {
+    x3 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
+    if (_cffi_convert_array_argument(_cffi_type(3), arg3, (char **)&x3,
+            datasize, &large_args_free) < 0)
+      return NULL;
+  }
+
+  datasize = _cffi_prepare_pointer_call_argument(
+      _cffi_type(3), arg4, (char **)&x4);
+  if (datasize != 0) {
+    x4 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
+    if (_cffi_convert_array_argument(_cffi_type(3), arg4, (char **)&x4,
+            datasize, &large_args_free) < 0)
+      return NULL;
+  }
+
+  datasize = _cffi_prepare_pointer_call_argument(
+      _cffi_type(3), arg5, (char **)&x5);
+  if (datasize != 0) {
+    x5 = ((size_t)datasize) <= 640 ? (int *)alloca((size_t)datasize) : NULL;
+    if (_cffi_convert_array_argument(_cffi_type(3), arg5, (char **)&x5,
+            datasize, &large_args_free) < 0)
+      return NULL;
+  }
+
+  x6 = _cffi_to_c_int(arg6, int);
+  if (x6 == (int)-1 && PyErr_Occurred())
+    return NULL;
+
+  x7 = _cffi_to_c_int(arg7, int);
+  if (x7 == (int)-1 && PyErr_Occurred())
+    return NULL;
+
+  x8 = _cffi_to_c_int(arg8, int);
+  if (x8 == (int)-1 && PyErr_Occurred())
+    return NULL;
+
+  x9 = _cffi_to_c_int(arg9, int);
+  if (x9 == (int)-1 && PyErr_Occurred())
+    return NULL;
+
+  Py_BEGIN_ALLOW_THREADS
+  _cffi_restore_errno();
+  { result = batch_matmul_int(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9); }
+  _cffi_save_errno();
+  Py_END_ALLOW_THREADS
+
+  (void)self; /* unused */
+  pyresult = _cffi_from_c_pointer((char *)result, _cffi_type(3));
+  if (large_args_free != NULL) _cffi_free_array_arguments(large_args_free);
+  return pyresult;
+}
+#else
+#  define _cffi_f_batch_matmul_int _cffi_d_batch_matmul_int
 #endif
 
 static void _cffi_d_cast_int_float(int * x0, float * x1, int x2)
@@ -1295,10 +1449,10 @@ _cffi_f_free(PyObject *self, PyObject *arg0)
   struct _cffi_freeme_s *large_args_free = NULL;
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(13), arg0, (char **)&x0);
+      _cffi_type(28), arg0, (char **)&x0);
   if (datasize != 0) {
     x0 = ((size_t)datasize) <= 640 ? (void *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(13), arg0, (char **)&x0,
+    if (_cffi_convert_array_argument(_cffi_type(28), arg0, (char **)&x0,
             datasize, &large_args_free) < 0)
       return NULL;
   }
@@ -1341,7 +1495,7 @@ _cffi_f_malloc(PyObject *self, PyObject *arg0)
   Py_END_ALLOW_THREADS
 
   (void)self; /* unused */
-  pyresult = _cffi_from_c_pointer((char *)result, _cffi_type(13));
+  pyresult = _cffi_from_c_pointer((char *)result, _cffi_type(28));
   return pyresult;
 }
 #else
@@ -1638,19 +1792,19 @@ _cffi_f_memcpy(PyObject *self, PyObject *args)
     return NULL;
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(13), arg0, (char **)&x0);
+      _cffi_type(28), arg0, (char **)&x0);
   if (datasize != 0) {
     x0 = ((size_t)datasize) <= 640 ? (void *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(13), arg0, (char **)&x0,
+    if (_cffi_convert_array_argument(_cffi_type(28), arg0, (char **)&x0,
             datasize, &large_args_free) < 0)
       return NULL;
   }
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(19), arg1, (char **)&x1);
+      _cffi_type(34), arg1, (char **)&x1);
   if (datasize != 0) {
     x1 = ((size_t)datasize) <= 640 ? (void const *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(19), arg1, (char **)&x1,
+    if (_cffi_convert_array_argument(_cffi_type(34), arg1, (char **)&x1,
             datasize, &large_args_free) < 0)
       return NULL;
   }
@@ -1666,7 +1820,7 @@ _cffi_f_memcpy(PyObject *self, PyObject *args)
   Py_END_ALLOW_THREADS
 
   (void)self; /* unused */
-  pyresult = _cffi_from_c_pointer((char *)result, _cffi_type(13));
+  pyresult = _cffi_from_c_pointer((char *)result, _cffi_type(28));
   if (large_args_free != NULL) _cffi_free_array_arguments(large_args_free);
   return pyresult;
 }
@@ -1697,10 +1851,10 @@ _cffi_f_memset(PyObject *self, PyObject *args)
     return NULL;
 
   datasize = _cffi_prepare_pointer_call_argument(
-      _cffi_type(13), arg0, (char **)&x0);
+      _cffi_type(28), arg0, (char **)&x0);
   if (datasize != 0) {
     x0 = ((size_t)datasize) <= 640 ? (void *)alloca((size_t)datasize) : NULL;
-    if (_cffi_convert_array_argument(_cffi_type(13), arg0, (char **)&x0,
+    if (_cffi_convert_array_argument(_cffi_type(28), arg0, (char **)&x0,
             datasize, &large_args_free) < 0)
       return NULL;
   }
@@ -1720,7 +1874,7 @@ _cffi_f_memset(PyObject *self, PyObject *args)
   Py_END_ALLOW_THREADS
 
   (void)self; /* unused */
-  pyresult = _cffi_from_c_pointer((char *)result, _cffi_type(13));
+  pyresult = _cffi_from_c_pointer((char *)result, _cffi_type(28));
   if (large_args_free != NULL) _cffi_free_array_arguments(large_args_free);
   return pyresult;
 }
@@ -2693,38 +2847,39 @@ _cffi_f_transpose_int(PyObject *self, PyObject *args)
 #endif
 
 static const struct _cffi_global_s _cffi_globals[] = {
-  { "add_float", (void *)_cffi_f_add_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 22), (void *)_cffi_d_add_float },
-  { "add_int", (void *)_cffi_f_add_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 67), (void *)_cffi_d_add_int },
-  { "add_scalar_int", (void *)_cffi_f_add_scalar_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 78), (void *)_cffi_d_add_scalar_int },
+  { "add_float", (void *)_cffi_f_add_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 37), (void *)_cffi_d_add_float },
+  { "add_int", (void *)_cffi_f_add_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 82), (void *)_cffi_d_add_int },
+  { "add_scalar_int", (void *)_cffi_f_add_scalar_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 93), (void *)_cffi_d_add_scalar_int },
   { "batch_matmul_float", (void *)_cffi_f_batch_matmul_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 0), (void *)_cffi_d_batch_matmul_float },
-  { "cast_int_float", (void *)_cffi_f_cast_int_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 50), (void *)_cffi_d_cast_int_float },
-  { "div_int", (void *)_cffi_f_div_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 67), (void *)_cffi_d_div_int },
-  { "div_scalar_int", (void *)_cffi_f_div_scalar_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 78), (void *)_cffi_d_div_scalar_int },
-  { "fill_float", (void *)_cffi_f_fill_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 45), (void *)_cffi_d_fill_float },
-  { "fill_int", (void *)_cffi_f_fill_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 84), (void *)_cffi_d_fill_int },
-  { "free", (void *)_cffi_f_free, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_O, 105), (void *)_cffi_d_free },
-  { "malloc", (void *)_cffi_f_malloc, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_O, 9), (void *)_cffi_d_malloc },
-  { "matmul_float", (void *)_cffi_f_matmul_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 97), (void *)_cffi_d_matmul_float },
-  { "matmul_int", (void *)_cffi_f_matmul_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 61), (void *)_cffi_d_matmul_int },
-  { "mean_float", (void *)_cffi_f_mean_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 28), (void *)_cffi_d_mean_float },
-  { "mean_int", (void *)_cffi_f_mean_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 28), (void *)_cffi_d_mean_int },
-  { "memcpy", (void *)_cffi_f_memcpy, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 17), (void *)_cffi_d_memcpy },
-  { "memset", (void *)_cffi_f_memset, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 12), (void *)_cffi_d_memset },
-  { "mul_float", (void *)_cffi_f_mul_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 22), (void *)_cffi_d_mul_float },
-  { "mul_int", (void *)_cffi_f_mul_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 67), (void *)_cffi_d_mul_int },
-  { "mul_scalar_float", (void *)_cffi_f_mul_scalar_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 39), (void *)_cffi_d_mul_scalar_float },
-  { "mul_scalar_int", (void *)_cffi_f_mul_scalar_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 78), (void *)_cffi_d_mul_scalar_int },
-  { "power_float", (void *)_cffi_f_power_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 22), (void *)_cffi_d_power_float },
-  { "power_scalar_float", (void *)_cffi_f_power_scalar_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 39), (void *)_cffi_d_power_scalar_float },
-  { "power_scalar_int", (void *)_cffi_f_power_scalar_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 55), (void *)_cffi_d_power_scalar_int },
-  { "relu_int", (void *)_cffi_f_relu_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 73), (void *)_cffi_d_relu_int },
-  { "sub_float", (void *)_cffi_f_sub_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 22), (void *)_cffi_d_sub_float },
-  { "sub_int", (void *)_cffi_f_sub_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 67), (void *)_cffi_d_sub_int },
-  { "sub_scalar_int", (void *)_cffi_f_sub_scalar_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 78), (void *)_cffi_d_sub_scalar_int },
-  { "sum_float", (void *)_cffi_f_sum_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 28), (void *)_cffi_d_sum_float },
-  { "sum_int", (void *)_cffi_f_sum_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 73), (void *)_cffi_d_sum_int },
-  { "transpose_float", (void *)_cffi_f_transpose_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 33), (void *)_cffi_d_transpose_float },
-  { "transpose_int", (void *)_cffi_f_transpose_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 89), (void *)_cffi_d_transpose_int },
+  { "batch_matmul_int", (void *)_cffi_f_batch_matmul_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 12), (void *)_cffi_d_batch_matmul_int },
+  { "cast_int_float", (void *)_cffi_f_cast_int_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 65), (void *)_cffi_d_cast_int_float },
+  { "div_int", (void *)_cffi_f_div_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 82), (void *)_cffi_d_div_int },
+  { "div_scalar_int", (void *)_cffi_f_div_scalar_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 93), (void *)_cffi_d_div_scalar_int },
+  { "fill_float", (void *)_cffi_f_fill_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 60), (void *)_cffi_d_fill_float },
+  { "fill_int", (void *)_cffi_f_fill_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 99), (void *)_cffi_d_fill_int },
+  { "free", (void *)_cffi_f_free, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_O, 120), (void *)_cffi_d_free },
+  { "malloc", (void *)_cffi_f_malloc, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_O, 24), (void *)_cffi_d_malloc },
+  { "matmul_float", (void *)_cffi_f_matmul_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 112), (void *)_cffi_d_matmul_float },
+  { "matmul_int", (void *)_cffi_f_matmul_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 76), (void *)_cffi_d_matmul_int },
+  { "mean_float", (void *)_cffi_f_mean_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 43), (void *)_cffi_d_mean_float },
+  { "mean_int", (void *)_cffi_f_mean_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 43), (void *)_cffi_d_mean_int },
+  { "memcpy", (void *)_cffi_f_memcpy, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 32), (void *)_cffi_d_memcpy },
+  { "memset", (void *)_cffi_f_memset, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 27), (void *)_cffi_d_memset },
+  { "mul_float", (void *)_cffi_f_mul_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 37), (void *)_cffi_d_mul_float },
+  { "mul_int", (void *)_cffi_f_mul_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 82), (void *)_cffi_d_mul_int },
+  { "mul_scalar_float", (void *)_cffi_f_mul_scalar_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 54), (void *)_cffi_d_mul_scalar_float },
+  { "mul_scalar_int", (void *)_cffi_f_mul_scalar_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 93), (void *)_cffi_d_mul_scalar_int },
+  { "power_float", (void *)_cffi_f_power_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 37), (void *)_cffi_d_power_float },
+  { "power_scalar_float", (void *)_cffi_f_power_scalar_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 54), (void *)_cffi_d_power_scalar_float },
+  { "power_scalar_int", (void *)_cffi_f_power_scalar_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 70), (void *)_cffi_d_power_scalar_int },
+  { "relu_int", (void *)_cffi_f_relu_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 88), (void *)_cffi_d_relu_int },
+  { "sub_float", (void *)_cffi_f_sub_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 37), (void *)_cffi_d_sub_float },
+  { "sub_int", (void *)_cffi_f_sub_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 82), (void *)_cffi_d_sub_int },
+  { "sub_scalar_int", (void *)_cffi_f_sub_scalar_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 93), (void *)_cffi_d_sub_scalar_int },
+  { "sum_float", (void *)_cffi_f_sum_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 43), (void *)_cffi_d_sum_float },
+  { "sum_int", (void *)_cffi_f_sum_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 88), (void *)_cffi_d_sum_int },
+  { "transpose_float", (void *)_cffi_f_transpose_float, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 48), (void *)_cffi_d_transpose_float },
+  { "transpose_int", (void *)_cffi_f_transpose_int, _CFFI_OP(_CFFI_OP_CPYTHON_BLTN_V, 104), (void *)_cffi_d_transpose_int },
 };
 
 static const struct _cffi_type_context_s _cffi_type_context = {
@@ -2734,12 +2889,12 @@ static const struct _cffi_type_context_s _cffi_type_context = {
   NULL,  /* no struct_unions */
   NULL,  /* no enums */
   NULL,  /* no typenames */
-  32,  /* num_globals */
+  33,  /* num_globals */
   0,  /* num_struct_unions */
   0,  /* num_enums */
   0,  /* num_typenames */
   NULL,  /* no includes */
-  109,  /* num_types */
+  124,  /* num_types */
   0,  /* flags */
 };
 

@@ -120,7 +120,7 @@ class Tensor:
     
     @classmethod
     def ones(cls, *args, dtype=float32, label=None, requires_grad=False):
-        b = Blob(nbytes=dtype.bytes * math.prod(args), fill=1)
+        b = Blob(nbytes=dtype.bytes * math.prod(args), fill=1.0 if dtype is float32 else 1)
         return cls(data=b, *args, dtype=dtype, label=label, requires_grad=requires_grad)
     
     @classmethod
@@ -197,12 +197,7 @@ class Tensor:
     def smul(self, scalar): return ScalarMul(self, scalar)()
 
     def transpose(self, dim0, dim1): return Transpose(self, dim0, dim1)()
-    def broadcast_to(self, *args): 
-        new_dims = len(args) - len(self.shape)
-        new = BroadCast(self, args)()
-        new_strides = tuple(0 for _ in range(new_dims)) + tuple(0 if self.shape[i] == 1 else self.strides[i] for i in range(self.dim()))
-        new.strides = new_strides
-        return new
+    def broadcast_to(self, *args): return BroadCast(self, args)()
         
     
     def spow(self, exp): return ScalarPower(self, exp)()
@@ -213,7 +208,7 @@ class Tensor:
 
     def tolist(self): 
         if len(self.shape):
-            return self.storage._to_python_list(self.shape, self.dtype.ptr_t)
+            return self.storage._to_python_list(self.shape, self.stride(), self.dtype.ptr_t)
         return self.get_item()
 
     def numel(self): return math.prod(self.shape)

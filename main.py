@@ -122,8 +122,11 @@ import lala
 import os
 print(f"PID: {os.getpid()}")
 
-l = lala.tensor([[i*j for i in range(3)] for j in range(4)], dtype=lala.float32)
+l = lala.tensor([[[k for i in range(3)] for j in range(4)] for k in range(5)], dtype=lala.float32)
+l2 = l.transpose(1, 1).broadcast_to(2, 2, *l.shape)
 
-print(l.tolist())
-print(l.transpose(0, 1).tolist())
+
+print(l.stride())
+print(l2.tolist())
+print(l.storage.nbytes, l2.storage.nbytes, l.numel(), l2.numel(), l.storage.nbytes / 4)
 

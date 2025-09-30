@@ -20,6 +20,9 @@ class Dtype:
     def __lt__(self, other: "Dtype"): return self.strength < other.strength
     def __gt__(self, other: "Dtype"): return self.strength > other.strength
 
+    def __repr__(self):
+        return self.name
+
         
 
 #this only exists for comparison (replaces none dtype objects where dtype is required)

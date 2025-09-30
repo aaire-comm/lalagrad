@@ -14,14 +14,7 @@ from .blob import Blob
 from ._C import ops
 import math
 
-def _transpose(data):
-    return [[row[i] for row in data] for i in range(len(data[0]))]
-
-def _dot(v1, v2): return sum([a * b for a, b in zip(v1, v2)])
-
 #TODO: Break operations into multile
-
-
 
 class Operation:
     def __init__(self, name, type_, *args):

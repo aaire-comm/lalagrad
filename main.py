@@ -120,46 +120,16 @@
 
 import lala
 import os, time
-
+import numpy as np
 print(f"PID: {os.getpid()}")
 
-l = lala.tensor([[j for i in range(5)] for j in range(10)], dtype=lala.float32)
+l = lala.tensor([[[j+i+k*2 for i in range(5)] for j in range(10)] for k in range(2)], dtype=lala.float32, requires_grad=True)
 
-l2 = lala.tensor([[j for i in range(5)] for j in range(5)])
+l2 = l[0, 2:5, 1:4]
 
+print(l.storage)
+# print(l2.tolist())
+print(np.array(l.tolist()))
 
-
-lala_start = time.perf_counter()
-l3 = l.broadcast_to(4, *l.shape) @ l2.broadcast_to(4, *l2.shape)
-lala_end = time.perf_counter()
-
-l3.visualize()
-import torch
-
-l4 = torch.tensor([[j for i in range(5)] for j in range(10)], dtype=torch.float32)
-
-l5 = torch.tensor([[float(j) for i in range(5)] for j in range(5)])
-
-torch_start = time.perf_counter()
-l6 = l4.broadcast_to(4, *l4.shape) @ l5.broadcast_to(4, *l5.shape)
-torch_end = time.perf_counter()
-
-
-print(list(l.storage._get_pointer("float*")[i] for i in range(50)))
-
-print(l.tolist() == l4.tolist())
-print(l2.tolist() == l5.tolist())
-print(l3.tolist() == l6.tolist())
-
-
-
-print(f"""
-lala: {lala_end - lala_start}
-torch: {torch_end - torch_start}
-
-ratio (lala/torch): {(lala_end - lala_start) / (torch_end - torch_start)}
-""")
-
-
-l = lala.tensor(2).broadcast_to(2, 2, 4)
-print(l.tolist())
+l3 = l2.contiguous()
+print(np.array(l3.tolist()))

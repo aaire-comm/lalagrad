@@ -13,12 +13,13 @@ def isTensor(obj): return isinstance(obj, Tensor)
 class Tensor: 
     """
     A Tensor is an n dimensional array of values of the same type
-    The underlying memory region is implemented is just an big 1D buffer of values
+    The underlying memory region is just an big 1D buffer(Blob) of values
     
-    A contiguous 
+    A contiguous tensor has all its elements stored in this big 1D array in a row-major 
+
     
     """
-    def __init__(self, *args, data: Optional[Union[List[List[int]] | "Tensor" | Blob]]=None, dtype=float32, label=None,  src: Optional[Operation]=None, strides: Optional[Tuple[int]]=None, requires_grad=False):
+    def __init__(self, *args, data: Optional[Union[List[List[int]] | "Tensor" | Blob]]=None, dtype=float32, label=None, offset=0,  src: Optional[Operation]=None, strides: Optional[Tuple[int]]=None, requires_grad=False):
         assert (not requires_grad) or (dtype is float32), "requires_grad allowed for dtype=float32"
         assert src is None or isinstance(src, Operation), "A Tensor src can only be an Op or None "
         if data is not None:
@@ -28,7 +29,6 @@ class Tensor:
                 #TODO: Implement our own list to buffer of dtyper in C
                 np_dtype = np.float32 if dtype is float32 else np.int32
                 arr = np.array(data, dtype=np_dtype, order="C")
-                print(arr.shape)
                 shape = arr.shape
                 nbytes = arr.size * dtype.bytes
                 ptr = arr.ctypes.data
@@ -82,7 +82,7 @@ class Tensor:
 
         self.label = label
         if strides is None:
-            if self.dim():
+            if self.dims:
                 s = [1]
                 r = tuple(reversed(self.shape))
                 for i in range(self.dims - 1):
@@ -95,6 +95,7 @@ class Tensor:
 
     @property
     def T(self):
+        if self.dims < 2: raise RuntimeError(f"tensor of dim {self.dims} can't be transposed")
         return self.transpose(-1, -2)
 
     @classmethod
@@ -138,6 +139,36 @@ class Tensor:
         new.fill(1).detach()
         return new
     
+    def __getitem__(self, args):
+        """
+        Does simple offset, shape, and stride calcs to make a ne Tensor 
+        pointing to the same shape
+        """
+        assert len(args) == self.dim()
+
+        strides = list(self.strides)
+        shape = list(self.shape)
+        offset = 0
+
+        for dim, s in enumerate(args):
+            if isinstance(s, int): 
+                start = s
+                stop = s + 1
+                step = 1
+            elif isinstance(s, slice): 
+                start = 0 if s.start is None else s.start
+                stop = self.shape[dim] if s.stop is None else s.stop
+                step = 1 if s.step is None else s.step
+            else: raise IndexError(f"Invalid Indexing element {s}")
+
+            offset += start * self.strides[dim]
+            size = (stop - start) % step
+            shape[dim] = size if size else int((stop - start) / step)
+            strides[dim] = strides[dim] * step
+            
+        return Tensor(*shape, data=Blob(ptr=self.storage._get_pointer(self.dtype.ptr_t)+offset, nbytes=0), strides=strides)
+    
+
     #this is just a dummy place holder to be used where we need to use a tensor
     @classmethod
     def dummy(cls, label: str="Dummy"):
@@ -148,14 +179,20 @@ class Tensor:
         self.src.detach(self)
         self.src = None
         
-
+    def contiguous(self):
+        """
+        returns a new Tensor that is stored in a new buffer in a row-major order
+        This also makes sure the storage for this new Tensor is not shared with any other tensor 
+        """
+        return Tensor(*self.shape, data=self.tolist())
+    
     def clone(self):
         clone_ = Tensor.empty(*self.shape, dtype=self.dtype, requires_grad=self.requires_grad)
         self.storage._copy(clone_.storage)
         return clone_
 
     def __repr__(self):
-        return f"Tensor(shape=<{self.shape}> grad=<{None if self.src is None else self.src.name}>)"
+        return f"Tensor(shape=<{self.shape}> dtype=<{self.dtype.name}> grad=<{None if self.src is None else self.src.name}>)"
     
     def is_scalar(self):
         return len(self.shape) == 0
@@ -179,13 +216,6 @@ class Tensor:
         self.storage._copy(new_b)
         return Tensor(*self.shape, data=new_b, dtype=self.dtype, requires_grad=self.requires_grad)
 
-    def __getitem__(self, slices):
-        assert len(slices) <= len(self.shape)
-        
-        for dim in range(len(self.shape)):
-            if len(slices) > 1:
-                return self[slices[dim:]]
-            return self._data[slices[0:2]]
     
     def visualize(self, file_name="graph.html"):
         graph_html(self, filename=file_name)

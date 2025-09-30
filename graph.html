@@ -8,8 +8,8 @@
       <div id="detail" style="position: fixed; width: 400px; height: 400px; top:0; left: 0; border: black; backgroung-color: 'red'"/>
       <script>
         var selectedNode;
-        var nodes = new vis.DataSet([{'id': 133105076981104, 'label': 'Tensor(shape=<(4, 10, 5)> grad=<None>)', 'shape': 'box', 'color': '#aa5555'}]);
-        var edges = new vis.DataSet([]);
+        var nodes = new vis.DataSet([{'id': 129688602426544, 'label': 'Tensor(shape=<(4, 10, 5)> dtype=<float32> grad=<MMul>)', 'shape': 'box', 'color': '#aa5555'}, {'id': 129688602426160, 'label': 'MMul', 'color': 'green', 'shape': 'circle'}, {'id': 129688652952160, 'label': 'Tensor(shape=<(4, 10, 5)> dtype=<float32> grad=<Broadcast>)', 'shape': 'box'}, {'id': 129688652512336, 'label': 'Broadcast', 'color': 'green', 'shape': 'circle'}, {'id': 129688652510848, 'label': 'Tensor(shape=<(10, 5)> dtype=<float32> grad=<None>)', 'shape': 'box'}, {'id': 129688651797056, 'label': '(4, 10, 5)', 'shape': 'box', 'color': '#ff5555'}, {'id': 129688602426256, 'label': 'Tensor(shape=<(4, 5, 5)> dtype=<float32> grad=<None>)', 'shape': 'box', 'color': 'yellow'}]);
+        var edges = new vis.DataSet([{'from': 129688602426544, 'to': 129688602426160}, {'from': 129688652952160, 'to': 129688602426160}, {'from': 129688652952160, 'to': 129688652512336}, {'from': 129688652510848, 'to': 129688652512336}, {'from': 129688651797056, 'to': 129688652512336}, {'from': 129688602426256, 'to': 129688602426160}]);
         var container = document.getElementById('mynetwork');
         var details = document.getElementById('mynetwork');
         var data = { nodes: nodes, edges: edges };

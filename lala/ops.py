@@ -387,6 +387,7 @@ class Matmul(Operation):
         res_strides = None
         if common_dims:
             common_shapes = lhs.shape[:common_dims]
+            assert common_shapes == rhs.shape[:common_dims]
             res_shape = common_shapes + res_shape
             rhs_strides = rhs.stride()
             lhs_strides = lhs.stride()

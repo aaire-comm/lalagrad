@@ -11,6 +11,13 @@ from lala.dtype import float32
 def isTensor(obj): return isinstance(obj, Tensor)
 
 class Tensor: 
+    """
+    A Tensor is an n dimensional array of values of the same type
+    The underlying memory region is implemented is just an big 1D buffer of values
+    
+    A contiguous 
+    
+    """
     def __init__(self, *args, data: Optional[Union[List[List[int]] | "Tensor" | Blob]]=None, dtype=float32, label=None,  src: Optional[Operation]=None, strides: Optional[Tuple[int]]=None, requires_grad=False):
         assert (not requires_grad) or (dtype is float32), "requires_grad allowed for dtype=float32"
         assert src is None or isinstance(src, Operation), "A Tensor src can only be an Op or None "
@@ -21,6 +28,7 @@ class Tensor:
                 #TODO: Implement our own list to buffer of dtyper in C
                 np_dtype = np.float32 if dtype is float32 else np.int32
                 arr = np.array(data, dtype=np_dtype, order="C")
+                print(arr.shape)
                 shape = arr.shape
                 nbytes = arr.size * dtype.bytes
                 ptr = arr.ctypes.data
@@ -74,7 +82,7 @@ class Tensor:
 
         self.label = label
         if strides is None:
-            if self.dim:
+            if self.dim():
                 s = [1]
                 r = tuple(reversed(self.shape))
                 for i in range(self.dims - 1):
@@ -87,7 +95,7 @@ class Tensor:
 
     @property
     def T(self):
-        return self.transpose()
+        return self.transpose(-1, -2)
 
     @classmethod
     def empty(cls, *args, dtype=float32, label=None, requires_grad=False):

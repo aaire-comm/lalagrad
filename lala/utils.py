@@ -4,12 +4,10 @@ def view(shape, list, offset=0):
     return [list[i] if len(shape)==1 else view(shape[1:], list) for i in range(shape[0])] 
 
 
-def _to_python_list(arr, shape, strides, off=0, tmp=0):
-    # print(off, strides, tmp)
-    # if len(shape) == 1:
-    #     return [(arr+off)[i * strides[0]] for i in range(shape[0])] 
-    # else:
-    #     return [_to_python_list(arr, shape[1:], strides[1:], off + j * strides[0], j) for j in range(shape[0])]
+def _to_python_list(arr, shape, strides, off=0):
+    """
+    this function can convert a typed buffer to a python ist of those values given the shape and strides
+    """
     return [(arr+off)[i * strides[0]] for i in range(shape[0])] if len(shape) == 1 else [_to_python_list(arr, shape[1:], strides[1:], off + j * strides[0]) for j in range(shape[0])]
 
 

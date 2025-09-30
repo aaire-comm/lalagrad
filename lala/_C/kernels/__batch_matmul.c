@@ -11,7 +11,7 @@ float* batch_matmul_float(
 ){
 
     //calculate strides
-    //this strides are used for counting not offset calculation
+    //this strides are used for mixed radix counting not offset calculation
     int strides[common_dims];
     strides[common_dims-1] = 1;
 
@@ -50,6 +50,7 @@ float* batch_matmul_float(
         int lhs_base_offset;
         int rhs_base_offset;
         int res_base_offset;
+        printf("Thread %d: %d of total %d\n", tid, matmul_per_thread, total_matmuls);
 
         for (int matmul=start; matmul < end; matmul++){
             //get the size allong each dim to get that current matrice
@@ -70,37 +71,19 @@ float* batch_matmul_float(
             float* lhs_offset = lhs + lhs_base_offset;
             float* rhs_offset = rhs + rhs_base_offset;
             float* res_offset = res + res_base_offset;
-            // printf("Thread: %d, matmul: %d, lhs_off: %d, rhs_off: %d, res_off: %d, lhs[0]: %f, rhs[0]: %f\n", tid, matmul, lhs_base_offset, rhs_base_offset, res_base_offset, lhs_offset[0], rhs_offset[0]);
+            
             float tmp;
             for (int row = 0; row < lhs_rows; row++) {
                 for (int col=0; col < rhs_cols; col++){
                     tmp = 0;
-                    for (int elem=0; elem < lhs_cols; elem++){
+                    for (int elem=0; elem < lhs_cols; elem++)
                         tmp += lhs_offset[row*lhs_cols + elem] * rhs_offset[elem*rhs_cols + col];
-                        // printf("%p, %04f = %p X %04f\n", res_offset+ row*rhs_cols + col,  tmp, lhs_offset + row*lhs_cols + elem, rhs_offset[elem*rhs_cols + col]);
-                    }
-                    // printf("Writing at %p: valueof %f\n", res_offset + row*rhs_cols + col, tmp);
                     res_offset[row*rhs_cols + col] = tmp;
                 }   
             }
         }
 
     }
-
-    /*
-    PRINT THE RESULT MATRICES
-    for (int i=0; i < total_matmuls; i++){
-        printf("\n");
-        for (int row = 0; row < lhs_rows; row++) {
-            printf("[");
-            for (int col=0; col < rhs_cols; col++)
-                    printf("%f, ", res[i*lhs_rows*lhs_cols + row*lhs_rows + col]);
-
-            }
-            printf("]\n");
-        }
-        printf("\n");
-    */
     return res;
     
 }
@@ -178,16 +161,14 @@ int* batch_matmul_int(
             int* lhs_offset = lhs + lhs_base_offset;
             int* rhs_offset = rhs + rhs_base_offset;
             int* res_offset = res + res_base_offset;
-            // printf("Thread: %d, matmul: %d, lhs_off: %d, rhs_off: %d, res_off: %d, lhs[0]: %f, rhs[0]: %f\n", tid, matmul, lhs_base_offset, rhs_base_offset, res_base_offset, lhs_offset[0], rhs_offset[0]);
+            
             int tmp;
             for (int row = 0; row < lhs_rows; row++) {
                 for (int col=0; col < rhs_cols; col++){
                     tmp = 0;
                     for (int elem=0; elem < lhs_cols; elem++){
                         tmp += lhs_offset[row*lhs_cols + elem] * rhs_offset[elem*rhs_cols + col];
-                        // printf("%p, %04f = %p X %04f\n", res_offset+ row*rhs_cols + col,  tmp, lhs_offset + row*lhs_cols + elem, rhs_offset[elem*rhs_cols + col]);
                     }
-                    // printf("Writing at %p: valueof %f\n", res_offset + row*rhs_cols + col, tmp);
                     res_offset[row*rhs_cols + col] = tmp;
                 }   
             }
@@ -195,20 +176,6 @@ int* batch_matmul_int(
 
     }
 
-    /*
-    PRINT THE RESULT MATRICES
-    for (int i=0; i < total_matmuls; i++){
-        printf("\n");
-        for (int row = 0; row < lhs_rows; row++) {
-            printf("[");
-            for (int col=0; col < rhs_cols; col++)
-                    printf("%f, ", res[i*lhs_rows*lhs_cols + row*lhs_rows + col]);
-
-            }
-            printf("]\n");
-        }
-        printf("\n");
-    */
     return res;
     
 }

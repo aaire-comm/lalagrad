@@ -118,18 +118,23 @@
 # layer = mlp.layers[0][0]
 # mlp.train(data)
 
+
 import lala
-import os, time
+import os
 import numpy as np
+
 print(f"PID: {os.getpid()}")
 
-l = lala.tensor([[[j+i+k*2 for i in range(5)] for j in range(10)] for k in range(2)], dtype=lala.float32, requires_grad=True)
+l = lala.tensor([[[i==j for i in range(5)] for j in range(5)] for r in range(5)], dtype=lala.float32, requires_grad=True)
+l2 = lala.tensor([[j for i in range(5)] for j in range(5)])
 
-l2 = l[0, 2:5, 1:4]
 
-print(l.storage)
-# print(l2.tolist())
-print(np.array(l.tolist()))
+l3 = l @ l2.expand(5, 5, 5)
 
-l3 = l2.contiguous()
-print(np.array(l3.tolist()))
+l4 = l3[2, 2, 2]
+print(l4.contiguous().tolist())
+print(l4.stride())
+
+
+import torch
+print(torch.tensor(l3.tolist(), dtype=torch.float32))

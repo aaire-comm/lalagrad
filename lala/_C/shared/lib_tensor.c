@@ -4,7 +4,6 @@
 
 
 #include "../kernels/__relu.c"
-#include "../kernels/__add_scalar.c"
 #include "../kernels/__fill.c"
 #include "../kernels/__mul_scalar.c"
 #include "../kernels/__rand.c"

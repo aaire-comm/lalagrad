@@ -345,6 +345,36 @@ class BroadCast(ViewOps):
         return lhs.storage, new_shape, new_stride
 
 
+class Slice(ViewOps):
+    def __init__(self, lhs, args):
+        super().__init__("Slice", lhs, args)
+
+    def forward(self):
+        lhs, args = self.operands
+        assert len(args) == lhs.dim()
+
+        strides = list(lhs.strides)
+        shape = list(lhs.shape)
+        offset = 0
+
+        for dim, s in enumerate(args):
+            if isinstance(s, int): 
+                start = s
+                stop = s + 1
+                step = 1
+            elif isinstance(s, slice): 
+                start = 0 if s.start is None else s.start
+                stop = shape[dim] if s.stop is None else s.stop
+                step = 1 if s.step is None else s.step
+            else: raise IndexError(f"Invalid Indexing element {s}")
+
+            offset += start * strides[dim]
+            size = (stop - start) % step
+            shape[dim] = size if size else int((stop - start) / step)
+            strides[dim] = strides[dim] * step
+            
+
+        return  Blob(ptr=lhs.storage._get_pointer(lhs.dtype.ptr_t)+offset, nbytes=0), shape, strides
 #this does casting to a dtype
 #for now that is just to float32
 #doesn't support backward
@@ -373,26 +403,23 @@ class Matmul(Operation):
         #common_dims is > 0 for batch matmul and 0 for single matmul
         rhs_rows, rhs_cols = rhs.shape[-2:]
         lhs_rows, lhs_cols = lhs.shape[-2:]
-        assert lhs_cols == rhs_rows
-        common_dims = lhs.dims - 2 
+        dims = lhs.dims
+
+        assert lhs_cols == rhs_rows and lhs.shape[:dims-2] == rhs.shape[:dims-2]
         
         res_shape = (lhs_rows, rhs_cols)
-        res_strides = None
-        if common_dims:
-            common_shapes = lhs.shape[:common_dims]
-            assert common_shapes == rhs.shape[:common_dims]
-            res_shape = common_shapes + res_shape
-            rhs_strides = rhs.stride()
-            lhs_strides = lhs.stride()
+        if(dims > 2):
+            res_shape = lhs.shape[:dims-2] + res_shape
+        rhs_strides = rhs.stride()
+        lhs_strides = lhs.stride()
 
-            res_strides = tuple(max(s0, s1) for s0, s1 in zip(lhs_strides[:common_dims], rhs_strides[:common_dims])) + (rhs_cols, 1)
-            p = ops[self.op_dtype.name].batch_matmul(lhs.storage, rhs.storage, common_shapes, lhs_strides, rhs_strides, res_strides, common_dims, lhs_rows, lhs_cols, rhs_cols)
-            res = Blob(ptr=p, nbytes=math.prod(res_shape)*self.op_dtype.bytes)
-        else:
-            res = Blob(nbytes=math.prod(res_shape)*self.op_dtype.bytes,  zero_init=True)
-            ops[self.op_dtype.name].matmul(lhs.storage, rhs.storage, res, lhs.shape[-2], lhs.shape[-1], rhs.shape[-1])
-        return res, res_shape, res_strides
-
+        res_strides = list(get_strides(res_shape))
+        
+        res = Blob(nbytes=math.prod(res_shape)*self.op_dtype.bytes)
+        ops[self.op_dtype.name].batch_matmul(lhs.storage, rhs.storage, res, res_shape, res_strides, lhs.shape, lhs_strides, rhs.shape, rhs_strides, dims)
+        for i in range(dims):
+            if not lhs_strides[i] and not rhs_strides[i]: res_strides[i] = 0
+        return res, res_shape, tuple(res_strides)
 
     def gradient(self, w_r_t, upstream_m): 
         lhs, rhs = self.operands

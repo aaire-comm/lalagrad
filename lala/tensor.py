@@ -1,5 +1,6 @@
 
 from typing import List, Optional, Union, Tuple
+from lala._C import ffi
 import math
 from .utils import graph_html
 from .ops import *
@@ -16,25 +17,26 @@ class Tensor:
     The underlying memory region is just an big 1D buffer(Blob) of values
     
     A contiguous tensor has all its elements stored in this big 1D array in a row-major 
-
-    
     """
     def __init__(self, *args, data: Optional[Union[List[List[int]] | "Tensor" | Blob]]=None, dtype=float32, label=None, offset=0,  src: Optional[Operation]=None, strides: Optional[Tuple[int]]=None, requires_grad=False):
         assert (not requires_grad) or (dtype is float32), "requires_grad allowed for dtype=float32"
         assert src is None or isinstance(src, Operation), "A Tensor src can only be an Op or None "
         if data is not None:
             if isinstance(data, list):
-                #use numpy to conver the list to a Contiguous memory block and get a void pointer to it
-                #delete the numpy object (we don't need it)
+                import ctypes 
+                #use numpy to convert the list to a Contiguous memory block and get a void pointer to it
+                #then delete the numpy object (we don't need it)
                 #TODO: Implement our own list to buffer of dtyper in C
                 np_dtype = np.float32 if dtype is float32 else np.int32
                 arr = np.array(data, dtype=np_dtype, order="C")
                 shape = arr.shape
                 nbytes = arr.size * dtype.bytes
                 ptr = arr.ctypes.data
-
-                del arr #free the memory held by numpy object (NOT the buffer just the PyObject)
                 blob = Blob(ptr=ptr, nbytes=nbytes)
+                #We need to keep the numpy object as it owns the buffer and gc may free the buffer if the 
+                #np.array object gets deleted by the python Garbage Collector
+                #TODO: ofcource  we will fix this
+                blob.__setattr__("numpy", arr)
 
             #from numpy ndarray
             elif isinstance(data, np.ndarray):
@@ -62,7 +64,7 @@ class Tensor:
                 blob._get_pointer("float*")[0] = data
 
             else: 
-                raise TypeError("data must be a 2d list or a matrice instance")
+                raise TypeError("data must be One of this types Tensor, list, Blob, float, int, bool")
         else: 
             assert len(args) > 0, "shape or data is required"
             shape = args
@@ -139,35 +141,7 @@ class Tensor:
         new.fill(1).detach()
         return new
     
-    def __getitem__(self, args):
-        """
-        Does simple offset, shape, and stride calcs to make a ne Tensor 
-        pointing to the same shape
-        """
-        assert len(args) == self.dim()
-
-        strides = list(self.strides)
-        shape = list(self.shape)
-        offset = 0
-
-        for dim, s in enumerate(args):
-            if isinstance(s, int): 
-                start = s
-                stop = s + 1
-                step = 1
-            elif isinstance(s, slice): 
-                start = 0 if s.start is None else s.start
-                stop = self.shape[dim] if s.stop is None else s.stop
-                step = 1 if s.step is None else s.step
-            else: raise IndexError(f"Invalid Indexing element {s}")
-
-            offset += start * self.strides[dim]
-            size = (stop - start) % step
-            shape[dim] = size if size else int((stop - start) / step)
-            strides[dim] = strides[dim] * step
-            
-        return Tensor(*shape, data=Blob(ptr=self.storage._get_pointer(self.dtype.ptr_t)+offset, nbytes=0), strides=strides)
-    
+    def __getitem__(self, args): return Slice(self, args)()
 
     #this is just a dummy place holder to be used where we need to use a tensor
     @classmethod
@@ -236,6 +210,7 @@ class Tensor:
 
     def transpose(self, dim0, dim1): return Transpose(self, dim0, dim1)()
     def broadcast_to(self, *args): return BroadCast(self, args)()
+    def expand(self, *args): return BroadCast(self, args)()
         
     
     def spow(self, exp): return ScalarPower(self, exp)()

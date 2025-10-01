@@ -24,7 +24,8 @@ void matmul_int(int* lhs, int* rhs,  int* s1, int* s2);
 // void matmul_float(float* lhs, float* rhs, float* res, int lhs_rows, int lhs_cols, int rhs_cols );
 // void matmul_float(int lhs_rows, int lhs_cols, int rhs_cols, float lhs[lhs_rows][lhs_cols], float rhs[lhs_cols][rhs_cols], float res[lhs_rows][rhs_cols]);
 void matmul_float(int lhs_rows, int lhs_cols, int rhs_cols, float *lhs, float *rhs, float *res);
-float* batch_matmul_float( float* lhs, float* rhs, int* common_shape, int* lhs_stride , int* rhs_stride, int* res_stride, int lhs_rows, int lhs_cols, int rhs_cols, int common_dims );
+// float* batch_matmul_float( float* lhs, float* rhs, int* common_shape, int* lhs_stride , int* rhs_stride, int* res_stride, int lhs_rows, int lhs_cols, int rhs_cols, int common_dims );
+float* batch_matmul_float( float* lhs, float* rhs, float* res, int* res_shape, int* res_strides, int* lhs_shape, int* lhs_stride , int* rhs_shape,int* rhs_stride, int dims);
 int* batch_matmul_int( int* lhs, int* rhs, int* common_shape, int* lhs_stride , int* rhs_stride, int* res_stride, int lhs_rows, int lhs_cols, int rhs_cols, int common_dims );
 
 

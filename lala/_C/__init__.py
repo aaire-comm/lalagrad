@@ -63,28 +63,27 @@ class Int32Ops:
     def batch_matmul(
         t1: Blob, 
         t2: Blob, 
-        common_shape: Tuple[int], 
+        res: Blob,
+        res_shape: Tuple[int],
+        res_stride: Tuple[int], 
+        lhs_shape: Tuple[int],
         lhs_stride: Tuple[int], 
+        rhs_shape: Tuple[int],
         rhs_stride: Tuple[int], 
-        res_strides: Tuple[int], 
-        common_dims: int, 
-        lhs_rows: int, 
-        lhs_cols: int, 
-        rhs_cols: int
+        dims: int
         ):
 
-        pointer = lib.batch_matmul_int(
+        lib.batch_matmul_int(
             t1._get_pointer("int*"), 
             t2._get_pointer("int*"),
-            common_shape, lhs_stride, 
-            rhs_stride, 
-            res_strides, 
-            lhs_rows, 
-            lhs_cols,
-            rhs_cols, 
-            common_dims
-            )
-        return pointer
+            res._get_pointer("int*"),
+            res_shape,
+            res_stride, 
+            lhs_shape,
+            lhs_stride, 
+            rhs_shape,
+            rhs_stride,
+            dims)
 
 
 
@@ -114,29 +113,28 @@ class Float32Ops:
     def batch_matmul(
         t1: Blob, 
         t2: Blob, 
-        common_shape: Tuple[int], 
+        res: Blob,
+        res_shape: Tuple[int],
+        res_stride: Tuple[int], 
+        lhs_shape: Tuple[int],
         lhs_stride: Tuple[int], 
+        rhs_shape: Tuple[int],
         rhs_stride: Tuple[int], 
-        res_strides: Tuple[int], 
-        common_dims: int, 
-        lhs_rows: int, 
-        lhs_cols: int, 
-        rhs_cols: int
+        dims: int
         ):
 
-        pointer = lib.batch_matmul_float(
+        lib.batch_matmul_float(
             t1._get_pointer("float*"), 
             t2._get_pointer("float*"),
-            common_shape, lhs_stride, 
+            res._get_pointer("float*"),
+            res_shape,
+            res_stride, 
+            lhs_shape,
+            lhs_stride, 
+            rhs_shape,
             rhs_stride, 
-            res_strides, 
-            lhs_rows, 
-            lhs_cols,
-            rhs_cols, 
-            common_dims
-            )
-        return pointer
-
+            dims )
+   
     @staticmethod
     def transpose(t: Blob, res: Blob, dim0: int, dim1: int, strides: Tuple[int]):
         s = ffi.new(f"int[{len(strides)}]", strides)

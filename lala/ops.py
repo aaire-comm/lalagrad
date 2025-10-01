@@ -13,11 +13,35 @@ from typing import Tuple
 from .blob import Blob
 from ._C import ops
 import math
+from enum import Enum, auto
+from dataclasses import dataclass
 
-#TODO: Break operations into multile
+#This is used for checking ops and stuff
+#But planning to use them to hide the op implementation when we migrate to C
+class Ops(Enum):
+    ADD = auto()
+    SUB = auto()
+    MUL = auto()
+    POW = auto()
+    SUM = auto()
+    MEAN = auto()
+
+    SMUL = auto()
+    SPOW = auto()
+
+    TRANSPOSE = auto()
+    VIEW = auto()
+    BROADCAST = auto()
+    SLICE = auto()
+
+
+    MATMUL = auto()
+
+
+
 
 class Operation:
-    def __init__(self, name, type_, *args):
+    def __init__(self, name: str, type_: str, op: int, *args):
         from .tensor import  Tensor
         self.name = name
         self.op_type = type_
@@ -95,7 +119,7 @@ class UnOps(Operation):
     ex. smul. spow, sadd, ssub
     like ops with other types in python int, bool. float
     """
-    def __init__(self, name, lhs, other): 
+    def __init__(self, name, op, lhs, other): 
         super().__init__(name, "UnOp", lhs, other)
 
 
@@ -105,12 +129,13 @@ class BinaryOps(Operation):
     ex. +, -, ** and most other ops
 
     """
-    def __init__(self, name, *args): 
+    def __init__(self, name, op, *args): 
         super().__init__(name, "BinaryOp", *args)
 
 
 class ReduceOps(Operation):
-    def __init__(self, name, *args): super().__init__(name, "ReduceOp", *args)
+    def __init__(self, name, op, *args): 
+        super().__init__(name, "ReduceOp", op, *args)
 
     """
     There are ops that return a tensor of smaller shape
@@ -123,7 +148,8 @@ class ViewOps(Operation):
     ex. transpose, view, expand...
     The gradient of ViewOps is just the reverse if the changes
     """, 
-    def __init__(self, name, t, new_shape): super().__init__(name, "ViewOp", t, new_shape)
+    def __init__(self, name, op, t, new_shape): 
+        super().__init__(name, "ViewOp", op, t, new_shape)
 
 
 #=======================================here are all the ops supported by  lalagrad=============================
@@ -131,7 +157,7 @@ class ViewOps(Operation):
 
 class Mean(ReduceOps):
     def __init__(self, tensor, dim): 
-        super().__init__("MEAN", tensor, dim)
+        super().__init__("MEAN", Ops.MEAN, tensor, dim)
 
     def forward(self):
         m, dim = self.operands
@@ -149,7 +175,7 @@ class Mean(ReduceOps):
 
 class ScalarPower(UnOps):
     def __init__(self, *args): 
-        super().__init__("ElPow", *args)
+        super().__init__("ElPow", Ops.SPOW, *args)
 
     def forward(self): 
         lhs, exp = self.operands
@@ -167,7 +193,7 @@ class ScalarPower(UnOps):
 
 class ScalarMul(UnOps):
     def __init__(self, *args): 
-        super().__init__("SMul", *args)
+        super().__init__("SMul", Ops.SMUL, *args)
 
     def forward(self): 
         lhs, s = self.operands
@@ -184,7 +210,7 @@ class ScalarMul(UnOps):
     
 class Add(BinaryOps):
     def __init__(self, lhs, rhs):
-        super().__init__("Add", lhs, rhs)
+        super().__init__("Add", Ops.ADD, lhs, rhs)
     
     def forward(self):
         rhs, lhs = self.operands
@@ -202,7 +228,7 @@ class Add(BinaryOps):
 
 class Sub(BinaryOps):
     def __init__(self, *args):
-        super().__init__("Sub", *args)
+        super().__init__("Sub", Ops.SUB, *args)
     
     def forward(self):
         rhs, lhs = self.operands
@@ -228,7 +254,7 @@ class Sum(ReduceOps):
     The gradient is just 1s of the same shape
     """
     def __init__(self, tensor, dim=None): 
-        super().__init__("Sum", tensor, dim)
+        super().__init__("Sum", Ops.SUM, tensor, dim)
         
 
     def forward(self, dim=None): 
@@ -255,7 +281,7 @@ class Mul(BinaryOps):
     Does element-wise multiplication
     backward with respect to one of the operands is the other
     """
-    def __init__(self, *args): super().__init__("ElMul", *args)
+    def __init__(self, *args): super().__init__("ElMul", Ops.MUL, *args)
 
     def forward(self): 
         rhs, lhs = self.operands
@@ -293,7 +319,7 @@ class Relu(Operation):
 class Transpose(ViewOps):
     """exchanges the elements of two dims"""
     def __init__(self, lhs, dim0: int, dim1: int): 
-        super().__init__("Transpose", lhs, (dim0, dim1))
+        super().__init__("Transpose", Ops.TRANSPOSE, lhs, (dim0, dim1))
 
     def forward(self): 
         m, dims = self.operands
@@ -318,7 +344,7 @@ class View(ViewOps):
     No elemt postion swap is done just just reinterpret the buffer
     """
     def __init__(self, lhs, new_shape):
-        super().__init__("View",  lhs, new_shape)
+        super().__init__("View", Ops.VIEW,   lhs, new_shape)
     
     def forward(self):
         t, new_shape = self.operands
@@ -333,7 +359,7 @@ class View(ViewOps):
 
 class BroadCast(ViewOps):
     def __init__(self, lhs, new_shape: Tuple[int]):
-        super().__init__("Broadcast", lhs, new_shape)
+        super().__init__("Broadcast", Ops.BROADCAST, lhs, new_shape)
 
     def forward(self):
         lhs, shape = self.operands
@@ -347,7 +373,7 @@ class BroadCast(ViewOps):
 
 class Slice(ViewOps):
     def __init__(self, lhs, args):
-        super().__init__("Slice", lhs, args)
+        super().__init__("Slice", Ops.SLICE, lhs, args)
 
     def forward(self):
         lhs, args = self.operands
@@ -372,9 +398,10 @@ class Slice(ViewOps):
             size = (stop - start) % step
             shape[dim] = size if size else int((stop - start) / step)
             strides[dim] = strides[dim] * step
-            
+
 
         return  Blob(ptr=lhs.storage._get_pointer(lhs.dtype.ptr_t)+offset, nbytes=0), shape, strides
+    
 #this does casting to a dtype
 #for now that is just to float32
 #doesn't support backward
@@ -395,7 +422,7 @@ class Matmul(Operation):
     """
     
     def __init__(self, *args):
-        super().__init__("MMul", "MBinary", *args)
+        super().__init__("MMul", "MBinary", Ops.MATMUL, *args)
         
     def forward(self):
         lhs, rhs = self.operands

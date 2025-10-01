@@ -1,2 +1,4 @@
-1. Transpose Op fix (actually transpose the data. currently doing just a view)
-2. expand the ops to any shape with broadcasting
+DONE 1. Transpose Op fix (actually transpose the data. currently doing just a view)
+DONE 2. Matmul 
+3. Implement kernels with the work item and work group abstractions
+4. Fix Some issues with stepd slicing

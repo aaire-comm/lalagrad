@@ -144,10 +144,14 @@ class Tensor:
     def __getitem__(self, args): return Slice(self, args)()
 
     #this is just a dummy place holder to be used where we need to use a tensor
+
     @classmethod
     def dummy(cls, label: str="Dummy"):
         return cls(0, label=label)
     
+
+    def data_ptr(self):
+        return int(self.storage._get_pointer("uintptr_t"))
     def detach(self):
         assert self.src is None, "trying to detach an unattached tensor"
         self.src.detach(self)
@@ -157,6 +161,8 @@ class Tensor:
         """
         returns a new Tensor that is stored in a new buffer in a row-major order
         This also makes sure the storage for this new Tensor is not shared with any other tensor 
+
+        We currently just convert the tensor to a python list and create a new tensor from it
         """
         return Tensor(*self.shape, data=self.tolist())
     

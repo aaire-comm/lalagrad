@@ -125,16 +125,17 @@ import numpy as np
 
 print(f"PID: {os.getpid()}")
 
-l = lala.tensor([[[i==j for i in range(5)] for j in range(5)] for r in range(5)], dtype=lala.float32, requires_grad=True)
+l = lala.tensor([[[r for i in range(5)] for j in range(5)] for r in range(5)], dtype=lala.float32, requires_grad=True)
 l2 = lala.tensor([[j for i in range(5)] for j in range(5)])
 
 
 l3 = l @ l2.expand(5, 5, 5)
 
-l4 = l3[2, 2, 2]
-print(l4.contiguous().tolist())
+l4 = l3[::2, 2:5, 2:]
+print(l4.tolist())
 print(l4.stride())
-
+print(hex(l4.data_ptr()))
+print(l3.storage)
 
 import torch
 print(torch.tensor(l3.tolist(), dtype=torch.float32))

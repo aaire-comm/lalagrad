@@ -15,8 +15,6 @@ class Tensor:
     """
     A Tensor is an n dimensional array of values of the same type
     The underlying memory region is just an big 1D buffer(Blob) of values
-    
-    A contiguous tensor has all its elements stored in this big 1D array in a row-major 
     """
     def __init__(self, *args, data: Optional[Union[List[List[int]] | "Tensor" | Blob]]=None, dtype=float32, label=None, offset=0,  src: Optional[Operation]=None, strides: Optional[Tuple[int]]=None, requires_grad=False):
         assert (not requires_grad) or (dtype is float32), "requires_grad allowed for dtype=float32"
@@ -185,11 +183,18 @@ class Tensor:
         
     def to(self, dtype: Dtype): 
         new = self.clone()
-        if self.dtype is not dtype:
-            CastOp.forward(self, new, dtype)
-            new.dtype = dtype
-        return new
+        print("New", new.requires_grad)
+        if self.dtype is dtype: return self
         
+        CastOp.forward(self, new, dtype)
+        new.dtype = dtype
+        return new
+    
+
+    def to_(self, dtype: Dtype):
+        CastOp.forward(self, self, dtype)
+        print(self.requires_grad)
+        return self
     
     def clone(self):
         new_b = Blob(self.storage.nbytes)

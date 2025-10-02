@@ -7,7 +7,6 @@ def get_strides(shape):
     return tuple(reversed(tuple(math.prod(shape[i:]) for i in range(len(shape), 0, -1))))
     
 
-
 def _to_python_list(arr, shape, strides, off=0):
 
     """

@@ -33,57 +33,65 @@ float* batch_matmul_float(
         int nthreads = omp_get_num_threads();
         int tid = omp_get_thread_num();
 
-    //A Work Group is a group of work items that are done by a single thread
-    int work_group = (work_items + nthreads-1) / nthreads; 
+        //A Work Group is a group of work items that are done by a single thread
+        int work_group = (work_items + nthreads-1) / nthreads; 
 
-    //for each tread we calculate the start and end work groups
-    int start  = tid * work_group;
-    int end = start + work_group;
-    
-    if (end > work_items){
-        end = work_items;
-    }
-    //assign
-    int counter[dims];
-    for (int i=0; i < dims; i++)
-        counter[i] = 0;
+        //for each thread we calculate the start and end work groups
+        int start  = tid * work_group;
+        int end = start + work_group;
+        
+        if (end > work_items)
+            end = work_items;
 
-    int lhs_base_offset;
-    int rhs_base_offset;
-    // printf("Thread %d: %d of total %d\n", tid, end - start, work_items);
-    float tmp;
-    float* lhs_offset = NULL;
-    float* rhs_offset = NULL;
-    for (int item=start; item < end; item++){
-        // printf("Thread %d: %d of total %d\n", tid, end - start, work_items);
-
-        //get the size allong each dim to get that current matrice
+        int counter[dims];
         for (int i=0; i < dims; i++)
-            counter[i] = MIXED_REDIX_DIGITS(item, res_strides[i], res_shape[i]);
+            counter[i] = 0;
 
+        int lhs_base_offset;
+        int rhs_base_offset;
+        // printf("Thread %d: %d of total %d\n", tid, end - start, work_items);
+        float* lhs_offset = NULL;
+        float* rhs_offset = NULL;
+        float tmp;
         
-        lhs_base_offset = 0;
-        rhs_base_offset = 0;
-        for (int i=0; i < dims-2; i++){
-            lhs_base_offset += counter[i] * lhs_stride[i];
-            rhs_base_offset = counter[i] * rhs_stride[i];
-        }
-        lhs_base_offset += counter[dims-2] * lhs_cols;
-        rhs_base_offset += counter[dims-1];
+        for (int item=start; item < end; item++){
+            lhs_base_offset = 0;
+            rhs_base_offset = 0;
+            tmp = 0;
+            // printf("Thread %d: %d of total %d\n", tid, end - start, work_items);
 
-        lhs_offset = lhs + lhs_base_offset;
-        rhs_offset = rhs + rhs_base_offset;
-        // printf("res_off: %d, lhs_offset: %d, rhs_offset: %d\n", item, lhs_base_offset, rhs_base_offset);
-        // float* res_offset = res + item;
-        
-        tmp = 0;
-        //A Single Work Item for matmul
-        for (int elem=0; elem < lhs_cols; elem++)
-            tmp += lhs_offset[elem] * rhs_offset[elem*rhs_cols];
-            // printf("%f * %f + ", lhs_offset[elem], rhs_offset[elem*rhs_cols]);
-        res[item] = tmp;
+            //get the size allong each dim to get that current matrice
+            for (int i=0; i < dims; i++)
+                counter[i] = MIXED_REDIX_DIGITS(item, res_strides[i], res_shape[i]);
+
+            //mode the pointers to the current matrice we are working on
+            for (int i=0; i < dims-2; i++){
+                lhs_base_offset += counter[i] * lhs_stride[i];
+                rhs_base_offset += counter[i] * rhs_stride[i];
+            }
+
+            //get to the row we are woking on
+            lhs_base_offset += counter[dims-2] * lhs_stride[dims-2];
+            rhs_base_offset += counter[dims-1] * rhs_stride[dims-1];
+
+            lhs_offset = lhs + lhs_base_offset;
+            rhs_offset = rhs + rhs_base_offset;
+            
+            //float* res_offset = res + item;
+            // printf("lhs_off: %d, rhs_off: %d, res_off: %d\n", lhs_base_offset, rhs_base_offset, item);
+
+            //A Single Work Item for matmul
+            printf("item: %d [ ", item);
+            for (int elem=0; elem < lhs_cols; elem++){
+                printf("+ %f * %f", lhs_offset[elem], rhs_offset[elem*rhs_cols*rhs_stride[dims-1]]);
+                tmp += lhs_offset[elem] * rhs_offset[elem*rhs_cols*rhs_stride[dims-1]];
+            }
+            printf(" = %f ]\n", tmp);
+
+
+            res[item] = tmp;
         }
-    
+        
     }
 
     return res;

@@ -44,22 +44,22 @@ class Operation:
     def __init__(self, name: str, type_: str, op: int, *args):
         from .tensor import  Tensor
         self.name = name
+        self.op = op
         self.op_type = type_
-        self.op_dtype = max(operand.dtype if isinstance(operand, Tensor) else Null for operand in args)
+        #The dtype this op works at. the result has this type and operands are casted to it before kernel call
+        self.dtype = max(operand.dtype if isinstance(operand, Tensor) else Null for operand in args)
+
         
         #cast every operand to the highes level operand
         casted_operands = []
         for operand in args:
-            casted_v = operand.to(self.op_dtype) if isinstance(operand, Tensor) and operand.dtype is not self.op_dtype else operand
+            casted_v = operand.to_(self.dtype) if isinstance(operand, Tensor) and not operand.dtype is  self.dtype else operand
             casted_operands.append(casted_v)
 
         self.operands = tuple(casted_operands)
         self.requires_grad =  any(operand.requires_grad if isinstance(operand, Tensor) else False for operand in self.operands)
-        
 
 
-
-    
     def detach(self, operand):
         assert operand in self.operands, f"operand not attached to {self}"
         operands = list(self.operands)
@@ -67,8 +67,7 @@ class Operation:
         self.operands =tuple(operands)
 
     def __call__(self): 
-        from lala.tensor import Tensor
-
+        from .tensor import Tensor
         data, shape, strides = self.forward()
 
         #Don't include in the Comp graph unless it requires gradien
@@ -76,7 +75,9 @@ class Operation:
             src = self
         else:
             src = None
-        return Tensor(*shape, data=data, strides=strides, src=src, dtype=self.op_dtype, requires_grad=self.requires_grad)
+        self.res = Tensor(*shape, data=data, strides=strides, src=src, dtype=self.dtype, requires_grad=self.requires_grad)
+        return self.res
+        
     
 
     def backward(self, upstream_m):
@@ -109,7 +110,6 @@ class Operation:
 
 """
 We break down ops into these 5 ops so we can optimize the forward, broadcasting and backward optimized accordingly ...
-
 """
 
 class UnOps(Operation): 
@@ -120,7 +120,7 @@ class UnOps(Operation):
     like ops with other types in python int, bool. float
     """
     def __init__(self, name, op, lhs, other): 
-        super().__init__(name, "UnOp", lhs, other)
+        super().__init__(name, "UnOp", op, lhs, other)
 
 
 class BinaryOps(Operation): 
@@ -130,7 +130,7 @@ class BinaryOps(Operation):
 
     """
     def __init__(self, name, op, *args): 
-        super().__init__(name, "BinaryOp", *args)
+        super().__init__(name, "BinaryOp", op, *args)
 
 
 class ReduceOps(Operation):
@@ -149,12 +149,12 @@ class ViewOps(Operation):
     The gradient of ViewOps is just the reverse if the changes
     """, 
     def __init__(self, name, op, t, new_shape): 
+        from .tensor import Tensor
         super().__init__(name, "ViewOp", op, t, new_shape)
 
 
+
 #=======================================here are all the ops supported by  lalagrad=============================
-
-
 class Mean(ReduceOps):
     def __init__(self, tensor, dim): 
         super().__init__("MEAN", Ops.MEAN, tensor, dim)
@@ -163,7 +163,7 @@ class Mean(ReduceOps):
         m, dim = self.operands
         res = Blob(m.dtype.bytes)
         #TODO: Make the mean kernel take a dimension
-        ops[self.op_dtype.name].mean_t(m.storage, res)
+        ops[self.dtype.name].mean_t(m.storage, res)
         return res, (), None
     
     def gradient(self):
@@ -180,13 +180,13 @@ class ScalarPower(UnOps):
     def forward(self): 
         lhs, exp = self.operands
         res = Blob(nbytes=lhs.storage.nbytes)
-        ops[self.op_dtype.name].exp(lhs.storage, exp, res)
+        ops[self.dtype.name].exp(lhs.storage, exp, res)
         return res, lhs.shape, None
         
     def gradient(self): 
         lhs, exp = self.operands
         grad_b = Blob(nbytes=lhs.storage.nbytes)
-        ops[self.op_dtype.name].mul_s(lhs.storage, exp, grad_b)
+        ops[self.dtype.name].mul_s(lhs.storage, exp, grad_b)
         return grad_b
 
     
@@ -198,7 +198,7 @@ class ScalarMul(UnOps):
     def forward(self): 
         lhs, s = self.operands
         res_b = Blob(lhs.storage.nbytes)
-        ops[self.op_dtype.name].mul_s(lhs.storage, s,  res_b)
+        ops[self.dtype.name].mul_s(lhs.storage, s,  res_b)
 
         return res_b, lhs.shape, None
         
@@ -215,7 +215,7 @@ class Add(BinaryOps):
     def forward(self):
         rhs, lhs = self.operands
         res = Blob(nbytes=rhs.storage.nbytes)
-        ops[self.op_dtype.name].add_t(rhs.storage, lhs.storage, res)
+        ops[self.dtype.name].add_t(rhs.storage, lhs.storage, res)
         return res, rhs.shape, None
 
     def gradient(self, w_r_t): 
@@ -233,7 +233,7 @@ class Sub(BinaryOps):
     def forward(self):
         rhs, lhs = self.operands
         res = Blob(nbytes=rhs.storage.nbytes)
-        ops[self.op_dtype.name].sub_t(rhs.storage, lhs.storage, res)
+        ops[self.dtype.name].sub_t(rhs.storage, lhs.storage, res)
         return res, rhs.shape, None
     
 
@@ -263,7 +263,7 @@ class Sum(ReduceOps):
         if dim is None:
             rhs, _ = self.operands
             res = Blob(nbytes=m.dtype.bytes)
-            ops[self.op_dtype.name].sum_t(rhs.storage, res)
+            ops[self.dtype.name].sum_t(rhs.storage, res)
             return res, (), None
             #TODO: Implement sum allong dim with strides
         else: 
@@ -286,7 +286,7 @@ class Mul(BinaryOps):
     def forward(self): 
         rhs, lhs = self.operands
         res = Blob(nbytes=rhs.storage.nbytes)
-        ops[self.op_dtype.name].mul_t(rhs.storage, lhs.storage, res)
+        ops[self.dtype.name].mul_t(rhs.storage, lhs.storage, res)
         return res, rhs.shape, None
     
     def gradient(self, w_r_t): 
@@ -315,27 +315,33 @@ class Relu(Operation):
         m = self.operands[0]
         return [[1 if e > 0 else 0 for e in row] for row in m.data]
 
+
         
 class Transpose(ViewOps):
     """exchanges the elements of two dims"""
     def __init__(self, lhs, dim0: int, dim1: int): 
         super().__init__("Transpose", Ops.TRANSPOSE, lhs, (dim0, dim1))
 
+
     def forward(self): 
         m, dims = self.operands
+        dim0, dim1 = dims
+
         new_shape = list(m.shape)
-        a = new_shape[dims[0]]
-        new_shape[dims[0]] = new_shape[dims[1]]
-        new_shape[dims[1]] = a
+        a = new_shape[dim0]
+        new_shape[dim0] = new_shape[dim1]
+        new_shape[dim1] = a
+
         new_stride = list(m.stride())
-        a = new_stride[dims[0]]
-        new_stride[dims[0]] = new_stride[dims[1]]
-        new_stride[dims[1]] = a
+        a = new_stride[dim0]
+        new_stride[dim0] = new_stride[dim1]
+        new_stride[dim1] = a
         return m.storage, tuple(new_shape), tuple(new_stride)
     
     def gradient(self, upstream_m):
-        dims = self.operands[1]
-        return upstream_m.transpose(dims[1], dims[0])
+        _, dims = self.operands
+        dim0, dim1 = dims
+        return upstream_m.transpose(dim1, dim0).contiguous().storage
      
         
 class View(ViewOps):
@@ -372,6 +378,10 @@ class BroadCast(ViewOps):
 
 
 class Slice(ViewOps):
+    """
+    Creates a new Tensor by slicing a tensor 
+    No data copy just a new view
+    """
     def __init__(self, lhs, args):
         super().__init__("Slice", Ops.SLICE, lhs, args)
 
@@ -395,8 +405,7 @@ class Slice(ViewOps):
             else: raise IndexError(f"Invalid Indexing element {s}")
 
             offset += start * strides[dim]
-            size = (stop - start) % step
-            shape[dim] = size if size else int((stop - start) / step)
+            shape[dim] = (stop - start + step - 1) // step
             strides[dim] = strides[dim] * step
 
 
@@ -442,8 +451,9 @@ class Matmul(Operation):
 
         res_strides = list(get_strides(res_shape))
         
-        res = Blob(nbytes=math.prod(res_shape)*self.op_dtype.bytes)
-        ops[self.op_dtype.name].batch_matmul(lhs.storage, rhs.storage, res, res_shape, res_strides, lhs.shape, lhs_strides, rhs.shape, rhs_strides, dims)
+        res = Blob(nbytes=math.prod(res_shape)*self.dtype.bytes)
+
+        ops[self.dtype.name].batch_matmul(lhs.storage, rhs.storage, res, res_shape, res_strides, lhs.shape, lhs_strides, rhs.shape, rhs_strides, dims)
         for i in range(dims):
             if not lhs_strides[i] and not rhs_strides[i]: res_strides[i] = 0
         return res, res_shape, tuple(res_strides)
@@ -452,15 +462,11 @@ class Matmul(Operation):
         lhs, rhs = self.operands
 
         if w_r_t is lhs:
-            rhs_t = rhs.transpose(0, 1)
-            lgrad_b = Blob(upstream_m.shape[0]*rhs_t.shape[1]*self.op_dtype.bytes)
-            ops[self.op_dtype.name].matmul(upstream_m.storage, rhs_t.storage, lgrad_b, *upstream_m.shape, rhs_t.shape[1])
-
+            rhs_t = rhs.T.contiguous()
+            lgrad_b,_, __ = Matmul(upstream_m, rhs_t).forward()
             return lgrad_b
+        
         else:
-
-            lhs_t = lhs.transpose(0, 1)
-            rgrad_b = Blob(lhs_t.shape[0]*upstream_m.shape[1]*self.op_dtype.bytes)
-            ops[self.op_dtype.name].matmul(lhs_t.storage, upstream_m.storage,  rgrad_b, *lhs_t.shape, upstream_m.shape[1])
-
+            lhs_t = lhs.T.contiguous()
+            rgrad_b, _, __ = Matmul(lhs_t, upstream_m).forward()
             return rgrad_b

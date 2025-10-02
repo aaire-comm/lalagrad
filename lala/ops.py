@@ -70,7 +70,7 @@ class Operation:
         from .tensor import Tensor
         data, shape, strides = self.forward()
 
-        #Don't include in the Comp graph unless it requires gradien
+        #Don't include in the Op graph unless it requires gradient
         if self.requires_grad:
             src = self
         else:

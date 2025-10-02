@@ -81,12 +81,8 @@ float* batch_matmul_float(
             // printf("lhs_off: %d, rhs_off: %d, res_off: %d\n", lhs_base_offset, rhs_base_offset, item);
 
             //A Single Work Item for matmul
-            printf("item: %d [ ", item);
-            for (int elem=0; elem < lhs_cols; elem++){
-                printf("+ %f * %f", lhs_offset[elem], rhs_offset[elem*rhs_cols*rhs_stride[dims-1]]);
+            for (int elem=0; elem < lhs_cols; elem++)
                 tmp += lhs_offset[elem] * rhs_offset[elem*rhs_cols*rhs_stride[dims-1]];
-            }
-            printf(" = %f ]\n", tmp);
 
 
             res[item] = tmp;

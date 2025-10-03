@@ -3,17 +3,21 @@ import lala
 
 input_features, neurons = 2, 2
 
-#Weights and biases
+
+#model Weights and biases
 weights = lala.rand(input_features, neurons,  requires_grad=True)
 bias = lala.rand(1, neurons, requires_grad=True)
 
-for epoch in range(100):
-    loss_avg = 0.0
-    for i in range(10):
+epoch, batch = 25, 5
+
+losses = []
+for epoch in range(epoch):
+    batch_loss = 0.0
+    for i in range(batch):
         #input and target
         input_ = lala.rand(1, input_features)
         #use the input as a target (teaching the nn to map input to itself)
-        target = input_.smul(2)
+        target = input_.smul(3)
 
         #model pred and loss
         logits = input_ @ weights + bias
@@ -29,18 +33,29 @@ for epoch in range(100):
 
         #remove grad for next run
         weights.grad = None; bias.grad = None
-        loss_avg += loss.get_item()
-    print(f"epoch {epoch} batch avg loss:", loss_avg/100)
+        batch_loss += loss.get_item()
+    losses.append(batch_loss)
+    print(f"epoch {epoch} batch avg loss:", batch_loss/batch)
 
 loss.visualize()
-
 
 print("""
 This code implements a Single Layer Fully Connected neural net 
 The network is trained to map 
 
 Assuming correct lalagrad installation you should see an output of decreasing numbers
-which is the loss of the model going down as the net trains over several loops
+which is the loss of the model going down as the net trains multiply an input_ by 2 
       
 it also generates graph.html open it with a browser to see your computation graph
 """)
+
+#plot the loss over time
+import matplotlib.pyplot as plt
+plt.plot([x for x in range(epoch+1)], losses, label="lalagrad")
+
+plt.xlabel("epoch")
+plt.ylabel("loss")
+plt.title("loss over epoch")
+plt.legend()
+
+plt.show()

@@ -1,4 +1,4 @@
 numpy
 torch
 cffi
-matprolo
+matplotlib

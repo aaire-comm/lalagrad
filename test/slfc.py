@@ -19,7 +19,7 @@ for _ in range(100):
         #input and target
         input_ = lala.rand(1, input_features)
         #use the input as a target (teaching the nn to map input to itself)
-        target = input_ * 2
+        target = input_.spow(2)
 
         #model pred and loss
         logits = input_ @ weights + bias
@@ -30,7 +30,10 @@ for _ in range(100):
         #update weights and biases
         weights -= weights.grad
         bias -= bias.grad
+
+        #detach the weights from the prev weights and grad
         weights.detach()
+        #do the same for bias
         bias.detach()
 
         #remove grad for next run
@@ -39,5 +42,4 @@ for _ in range(100):
     print("100 loops avg loss:", loss_avg/100)
 
 loss.visualize()
-
 

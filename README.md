@@ -5,11 +5,12 @@
 
 
 <h3><b>The Goal</b></h3>
-The primary goal of this project is to learn and build a Tensor lib, an autograd engine and NN module in a way the it is easy for anyone with some Python and C laungage background to be able to understand the code base<br/><br/>
+The primary goal of this project is to learn and build a Tensor lib, an autograd engine and NN module in a way the it is easy for anyone with some Python and C laungage background to be able to understand the code base<br/>
 And also to prepare a secodary repo with all the different components of this framework, programming and mathematical stuff,  well documented (In Detail)<br>
 
 <h3><b>Tensors</b></h3>
-most tensor creation methods and operations supported by tinygrad will be here (may be all of them) look at [lalagrad/tensor.py](https://github.com/aaire-comm/lalagrad/blob/main/lalagrad/tensor.py)
+
+most tensor creation methods and operations supported by tinygrad will be here (may be all of them) look at [lala/tensor.py](https://github.com/aaire-comm/lalagrad/blob/main/lala/tensor.py)
 
 <h3><b>Getting Started</b></h3>
 

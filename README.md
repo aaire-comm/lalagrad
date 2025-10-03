@@ -40,5 +40,5 @@ test your installation by running [main.py](https://github.com/aaire-comm/lalagr
 ```bash
 python main.py
 ```
-you should see something like
-<img style="float: left" src=./utils/img/example-loss.png alt=drawing width=200/>
+you should see something like<br/>
+<img style="float: left" src=./utils/img/example-loss.png alt=drawing width=400/>

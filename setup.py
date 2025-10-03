@@ -23,7 +23,7 @@ compiler_args = ["-shared", "-fopenmp", "-fPIC",  path.join(_c_lib_shared , "lib
 
 try:
     s = subprocess.call([compiler] + compiler_args)
-    print("C library compiled")
+    print("C backend compiled")
 
 
 
@@ -33,7 +33,7 @@ try:
 
     ffi = FFI()
 
-    #this is required so cffi knows about the functions deined in the lib
+    #this is required so cffi knows about the functions defined in the lib
     ffi.cdef(signs)
 
 
@@ -47,6 +47,7 @@ try:
     )
 
     ffi.compile(tmpdir=_c_lib_shared , verbose=True)
+    print("Setup complete")
 
 except FileNotFoundError:
     print('gcc not found on you system')

@@ -437,7 +437,9 @@ class Matmul(Operation):
         lhs, rhs = self.operands
         #this dims are along which we do matmuls 
         #common_dims is > 0 for batch matmul and 0 for single matmul
+        print
         rhs_rows, rhs_cols = rhs.shape[-2:]
+
         lhs_rows, lhs_cols = lhs.shape[-2:]
         dims = lhs.dims
 
@@ -463,7 +465,9 @@ class Matmul(Operation):
 
         if w_r_t is lhs:
             rhs_t = rhs.T.contiguous()
-            lgrad_b,_, __ = Matmul(upstream_m, rhs_t).forward()
+            res = Matmul(upstream_m, rhs_t)
+            lgrad_b,_, __ = res.forward()
+            res.detach()
             return lgrad_b
         
         else:

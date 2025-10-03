@@ -21,7 +21,6 @@ class Tensor:
         assert src is None or isinstance(src, Operation), "A Tensor src can only be an Op or None "
         if data is not None:
             if isinstance(data, list):
-                import ctypes 
                 #use numpy to convert the list to a Contiguous memory block and get a void pointer to it
                 #then delete the numpy object (we don't need it)
                 #TODO: Implement our own list to buffer of dtyper in C
@@ -38,11 +37,12 @@ class Tensor:
 
             #from numpy ndarray
             elif isinstance(data, np.ndarray):
-                shape = data.shape
+                shape = args if len(args) else data.shape
                 nbytes = data.size * dtype.bytes
                 ptr = data.ctypes.data
                 blob = Blob(ptr=ptr, nbytes=nbytes)
-                del data
+                dtype = float32 if data.dtype == np.float32 else int32 
+                blob.__setattr__("numpy", data)
 
             #you can also just pass a Storage Blob and build a tensor on top
             #it doesn't copy so any change to this the tensor changes the storage 
@@ -87,7 +87,7 @@ class Tensor:
                 r = tuple(reversed(self.shape))
                 for i in range(self.dims - 1):
                     s.append(s[i] * r[i])
-                    self.strides = tuple(reversed(s))
+                self.strides = tuple(reversed(s))
             else:
                 self.strides = ()
         else: 
@@ -114,8 +114,10 @@ class Tensor:
     @classmethod
     def rand(cls, *args, dtype=float32, label=None, requires_grad=False):
         assert len(args), "shape args required"
-        b = Blob(nbytes=math.prod(args)*dtype.bytes)
-        return cls(*args, data=b, dtype=dtype, label=label, requires_grad=requires_grad)
+        #Once again use numpy for random generation
+        rand = np.random.uniform(-1.0, 1.0, size=math.prod(args)).astype(np.float32)
+        
+        return cls(*args, data=rand, dtype=dtype, label=label, requires_grad=requires_grad)
     
     @classmethod
     def zeros(cls, *args, dtype=float32, label=None, requires_grad=False):
@@ -150,9 +152,9 @@ class Tensor:
 
     def data_ptr(self):
         return int(self.storage._get_pointer("uintptr_t"))
+    
     def detach(self):
-        assert self.src is None, "trying to detach an unattached tensor"
-        self.src.detach(self)
+        assert self.src is not None, "trying to detach an unattached tensor"
         self.src = None
         
     def contiguous(self):
@@ -164,10 +166,13 @@ class Tensor:
         """
         return Tensor(*self.shape, data=self.tolist())
     
+    def is_contiguous(self):
+        pass
+
     def clone(self):
-        clone_ = Tensor.empty(*self.shape, dtype=self.dtype, requires_grad=self.requires_grad)
-        self.storage._copy(clone_.storage)
-        return clone_
+        b = Blob(self.storage.nbytes)
+        self.storage._copy(b)
+        return Tensor(*self.shape, data=b,label=f"{self.label}-clone", dtype=self.dtype, requires_grad=self.requires_grad)
 
     def __repr__(self):
         return f"Tensor(shape=<{self.shape}> dtype=<{self.dtype.name}> grad=<{None if self.src is None else self.src.name}>)"
@@ -196,10 +201,6 @@ class Tensor:
         print(self.requires_grad)
         return self
     
-    def clone(self):
-        new_b = Blob(self.storage.nbytes)
-        self.storage._copy(new_b)
-        return Tensor(*self.shape, data=new_b, dtype=self.dtype, requires_grad=self.requires_grad)
 
     
     def visualize(self, file_name="graph.html"):

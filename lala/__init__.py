@@ -14,6 +14,11 @@ def zeros(*args, dtype=float32, label=None, requires_grad=False):
 def ones(*args, dtype=float32, label=None, requires_grad=False):
     return Tensor.ones(*args, dtype=dtype, label=label, requires_grad=requires_grad)
 
+def rand(*args, label=None, requires_grad=False):
+    #This only generates random float32 in (-1, 1) range
+    return Tensor.rand(*args, dtype=float32, label=label, requires_grad=requires_grad)
+
+
 
 def zeros_like(*args, dtype=float32, label=None, requires_grad=False):
     return Tensor.zeros_like(*args, dtype=dtype, label=label, requires_grad=requires_grad)

@@ -1,30 +1,19 @@
 import lala
-import os
-import numpy as np
-import random
-print(f"PID: {os.getpid()}")
-
-l = lala.tensor([[random.random() for i in range(1)] for j in range(2)] , dtype=lala.float32, requires_grad=True)
-l2 = lala.tensor([[random.random() for i in range(1)] for r in range(2)], dtype=lala.float32, requires_grad=True)
 
 
-l6 = l @ l2.T
-l7 = l6.mean()
+#Weights and biases
+weights = lala.zeros(2, 2, dtype=lala.float32, requires_grad=True)
+bias =    weights.clone()
 
-# l7.backward()
+#input and target
+input_ = lala.zeros(2, 2, dtype=lala.float32)
+target = lala.zeros(2, 2, dtype=lala.float32)
 
-import torch
+#model pred and loss
+logits = input_ @ weights + bias
+loss = (logits - target).spow(2).mean()
 
+#go backward and calculate gradients
+loss.backward()
 
-l1 = torch.tensor(l.tolist(), dtype=torch.float32, requires_grad=True)
-l3 = torch.tensor(l2.T.tolist(), dtype=torch.float32, requires_grad=True)
-
-
-l8 = l1 @ l3
-l10 = l8.mean()
-
-l10.backward()
-
-print(np.array(l8.tolist()) - np.array(l6.tolist()))
-
-print()
+weights -= weights.grad

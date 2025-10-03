@@ -4,12 +4,33 @@
 <b>[In Progress]</b>
 
 
-for Educational purposes mainly and will be between [@tinygrad](https://github.com/tinygrad/tinygrad) and [@microrad](https://github.com/karpathy/micrograd).
-
-<h3><b>The plan</b></h3>
-Though am building this to learn, the final thing has to be as fast as <b>Numpy</b> if not faster.
-And with a decent nn module<br>
+<h3><b>The Goal</b></h3>
+The primary goal of this project is to learn and build a Tensor lib, an autograd engine and NN module in a way the it is easy for anyone with some Python and C laungage background to be able to understand the code base<br/><br/>
+And also to prepare a secodary repo with all the different components of this framework, programming and mathematical stuff,  well documented (In Detail)<br>
 
 <h3><b>Tensors</b></h3>
+most tensor creation methods and operations supported by tinygrad will be here (may be all of them) look at [lalagrad/tensor.py](https://github.com/aaire-comm/lalagrad/blob/main/lalagrad/tensor.py)
 
-most tensor creation methods and operations supported by tinygrad will be here (may be all of them) look at [lalagrad/tensor.py](https://github.com/leulshawel/lalagrad/blob/main/lalagrad/tensor.py)
+<h3><b>Getting Started</b></h3>
+
+Create a new python vertual env in a dir you want to install lalagrad and its dpendendecies in
+```bash
+python -m  venv .
+source ./bin/activate
+
+```
+
+clone the repo, navigate to the project folder and install dependecies
+```bash
+git clone https://github.com/aaire-comm/lalagrad
+cd lalagrad
+pip install -r requirements.txt
+```
+
+
+Build the C backend (assuming you have GCC installed)
+```bash
+python setup.py
+```
+
+All Set you can now use lalagrad
